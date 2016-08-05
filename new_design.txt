@@ -1,0 +1,43 @@
+LInstance : LScope
+-> LClass _class
+-> List<LType> _types
+
+LClass : LScope, LDeclaration, LType 
+-> LClass? _parent
+-> List<LDeclaration> _fields
+-> List<LTypeParameter> _parameters
+
+LSimpleDeclaration
+-> LType type
+-> String name
+-> LAssignment? value
+
+LTypeParameter : LType
+-> LClass? _parent
+
+LType
+-> String _name
+-> String _identifier
+
+LNativeType : LType
+-> String _box
+
+LConnector : LScope
+-> LScope _target 
+-> String _identifier
+-> List<Type> _types
+-> LConnectorType _type (DOT | ARRAY | REFERENCE)
+
+LFunctionCall : LExpression
+-> LScope _target
+-> LFunction _resolved
+-> String? name
+-> List<LExpression> _arguments
+
+LExpression
+-> LType _type
+
+LFunction : LBlock
+-> String _externalName
+-> List<LType> _arguments
+-> LType _returnType
