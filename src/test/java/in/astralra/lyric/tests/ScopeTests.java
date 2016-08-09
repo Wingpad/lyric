@@ -2,6 +2,7 @@ package in.astralra.lyric.tests;
 
 import in.astralra.lyric.LDeclarable;
 import in.astralra.lyric.LFunction;
+import in.astralra.lyric.LModifier;
 import in.astralra.lyric.LScope;
 import in.astralra.lyric.impl.LNativeType;
 import in.astralra.lyric.impl.LSimpleDeclaration;
@@ -108,6 +109,17 @@ public class ScopeTests {
         assertEquals("child should match our function", myFunction, child.findFunction("function", Collections.singletonList(LNativeType.INT)));
 
         assertEquals("but should still have parents other definition", child.findByName("function").size(), 2);
+    }
+
+    @Test
+    public void modifiersAreSet() {
+        LScope scope = newInstance();
+
+        LDeclarable declarable = new LSimpleDeclaration(LNativeType.VOID, "test");
+
+        scope.declare(declarable, LModifier.FINAL);
+
+        assertTrue("declarable should be final", LModifier.FINAL.isPresent(declarable.getModifiers()));
     }
 
     public LScope newInstance() {

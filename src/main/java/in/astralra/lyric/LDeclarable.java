@@ -10,4 +10,6 @@ public interface LDeclarable {
     boolean isValid();
     Optional<LObject> getValue();
     // LAssignment getValue();
+    void setModifiers(int flags);
+    int getModifiers();
 }

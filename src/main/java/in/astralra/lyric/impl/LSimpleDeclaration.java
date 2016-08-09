@@ -14,6 +14,7 @@ public class LSimpleDeclaration implements LDeclarable {
     private final LType type;
     private final String name;
     private final LObject object;
+    private int modifiers;
 
     public LSimpleDeclaration(LType type, String name) {
         this(type, name, null);
@@ -41,5 +42,15 @@ public class LSimpleDeclaration implements LDeclarable {
     @Override
     public Optional<LObject> getValue() {
         return Optional.ofNullable(object);
+    }
+
+    @Override
+    public int getModifiers() {
+        return modifiers;
+    }
+
+    @Override
+    public void setModifiers(int modifiers) {
+        this.modifiers = modifiers;
     }
 }

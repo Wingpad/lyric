@@ -2,10 +2,7 @@ package in.astralra.lyric;
 
 import in.astralra.lyric.impl.LNativeType;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,11 +33,13 @@ public class LScope {
         this.parent = parent;
     }
 
-    public void declare(LDeclarable declaration) throws LAlreadyDeclaredException {
-        if (doesNotContain(declaration)) {
-            declarations.add(declaration);
+    public void declare(LDeclarable declarable, LModifier... modifiers) throws LAlreadyDeclaredException {
+        if (doesNotContain(declarable)) {
+            declarable.setModifiers(LModifier.reduceToInt(declarable.getModifiers(), modifiers));
+            
+            declarations.add(declarable);
         } else {
-            throw new LAlreadyDeclaredException(declaration.getName());
+            throw new LAlreadyDeclaredException(declarable.getName());
         }
     }
 
