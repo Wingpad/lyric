@@ -10,6 +10,7 @@ import java.util.stream.Stream;
  * Created by jszaday on 8/4/2016.
  */
 public class LScope {
+    private LObject self;
     private LScope parent;
     private List<LDeclarable> declarations = new ArrayList<>();
 
@@ -109,6 +110,32 @@ public class LScope {
     public static class LAlreadyDeclaredException extends RuntimeException {
         LAlreadyDeclaredException(String name) {
             super("Scope already contains a variable with name " + name);
+        }
+    }
+
+    public LObject getSelf() {
+        return self;
+    }
+
+    public void setSelf(LObject self) {
+        this.self = self;
+    }
+
+    private boolean isDeclaredInScope(final LDeclarable declarable) {
+        return declarations.stream().anyMatch(declared -> declarable == declared);
+    }
+
+    public boolean isAccessible(final LDeclarable declarable) {
+        boolean isDeclaredInSelf = self != null && ((LScope) self).isDeclaredInScope(declarable);
+        boolean isDeclaredInParent = parent != null && parent.isDeclaredInScope(declarable);
+        boolean isDeclaredHere = isDeclaredInScope(declarable);
+
+        if (LModifier.PRIVATE.isPresent(declarable.getModifiers())) {
+            return isDeclaredHere || isDeclaredInSelf;
+        } else if (LModifier.PROTECTED.isPresent(declarable.getModifiers())) {
+            return isDeclaredHere || isDeclaredInSelf || isDeclaredInParent;
+        } else {
+            return LModifier.PUBLIC.isPresent(declarable.getModifiers());
         }
     }
 }

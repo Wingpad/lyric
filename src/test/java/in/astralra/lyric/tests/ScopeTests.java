@@ -1,9 +1,6 @@
 package in.astralra.lyric.tests;
 
-import in.astralra.lyric.LDeclarable;
-import in.astralra.lyric.LFunction;
-import in.astralra.lyric.LModifier;
-import in.astralra.lyric.LScope;
+import in.astralra.lyric.*;
 import in.astralra.lyric.impl.LNativeType;
 import in.astralra.lyric.impl.LSimpleDeclaration;
 import org.junit.Test;
@@ -112,7 +109,7 @@ public class ScopeTests {
     }
 
     @Test
-    public void modifiersAreSet() {
+    public void testSetModifiers() {
         LScope scope = newInstance();
 
         LDeclarable declarable = new LSimpleDeclaration(LNativeType.VOID, "test");
@@ -120,6 +117,37 @@ public class ScopeTests {
         scope.declare(declarable, LModifier.FINAL);
 
         assertTrue("declarable should be final", LModifier.FINAL.isPresent(declarable.getModifiers()));
+    }
+
+    @Test
+    public void testSetSelf() {
+        LScope scope = newInstance();
+        LObject object = new LClass();
+
+        scope.setSelf(object);
+
+        assertEquals("self should be set", scope.getSelf(), object);
+    }
+
+    @Test
+    public void testAccessibility() {
+        LScope parent = newInstance();
+        LScope child = newInstance();
+
+        parent.enter(child);
+
+        LDeclarable privateOne = new LSimpleDeclaration(LNativeType.VOID, "private");
+        LDeclarable publicOne = new LSimpleDeclaration(LNativeType.VOID, "public");
+        LDeclarable protectedOne = new LSimpleDeclaration(LNativeType.VOID, "protected");
+
+        parent.declare(privateOne, LModifier.PRIVATE);
+        parent.declare(publicOne, LModifier.PUBLIC);
+        parent.declare(protectedOne, LModifier.PROTECTED);
+
+        assertTrue("protected one should be accessible in child", child.isAccessible(protectedOne));
+        assertTrue("public one should be accessible in child", child.isAccessible(publicOne));
+        assertFalse("private one should not be accessible in child", child.isAccessible(privateOne));
+        assertTrue("but private one should be accessible in parent", parent.isAccessible(privateOne));
     }
 
     public LScope newInstance() {

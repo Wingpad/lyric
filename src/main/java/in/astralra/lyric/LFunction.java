@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * Created by jszaday on 8/5/2016.
  */
-public class LFunction implements LObject {
+public class LFunction extends LObject {
 
     private HashMap<String, LType> _arguments;
     private LType _returnType;

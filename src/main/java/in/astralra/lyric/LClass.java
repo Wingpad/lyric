@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by jszaday on 8/5/2016.
  */
-public class LClass extends LScope implements LObject {
+public class LClass extends LObject {
 
     @Override
     public LType getType() {
