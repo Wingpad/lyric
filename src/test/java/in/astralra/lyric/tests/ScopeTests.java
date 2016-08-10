@@ -1,8 +1,7 @@
 package in.astralra.lyric.tests;
 
 import in.astralra.lyric.*;
-import in.astralra.lyric.impl.LNativeType;
-import in.astralra.lyric.impl.LSimpleDeclaration;
+import in.astralra.lyric.LNativeType;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -42,14 +41,14 @@ public class ScopeTests {
         LScope grandparent = newInstance();
         LScope parent = newInstance();
         LScope child = newInstance();
-        LDeclarable test = new LSimpleDeclaration(null, "test");
-        LDeclarable childsTest = new LSimpleDeclaration(null, "test");
+        LDeclaration test = new LDeclaration(null, "test");
+        LDeclaration childsTest = new LDeclaration(null, "test");
 
         grandparent.enter(parent).enter(child);
 
         grandparent.declare(test);
 
-        List<LDeclarable> results = grandparent.findByName("test");
+        List<LDeclaration> results = grandparent.findByName("test");
 
         assertFalse("Test must be found in Grandparent.", results.isEmpty() || results.get(0) != test);
 
@@ -74,7 +73,7 @@ public class ScopeTests {
     @Test(expected = LScope.LAlreadyDeclaredException.class)
     public void shouldNotAllowMultipleDefinitions() {
         LScope scope = newInstance();
-        LDeclarable declaration = new LSimpleDeclaration(null, "test");
+        LDeclaration declaration = new LDeclaration(null, "test");
 
         scope.declare(declaration);
 
@@ -98,10 +97,10 @@ public class ScopeTests {
         theirFunction2.putArgument("i", LNativeType.INT);
         theirFunction2.putArgument("j", LNativeType.INT);
 
-        parent.declare(new LSimpleDeclaration(LNativeType.FUNCTION, "function", theirFunction1));
-        parent.declare(new LSimpleDeclaration(LNativeType.FUNCTION, "function", theirFunction2));
+        parent.declare(new LDeclaration(LNativeType.FUNCTION, "function", theirFunction1));
+        parent.declare(new LDeclaration(LNativeType.FUNCTION, "function", theirFunction2));
 
-        child.declare(new LSimpleDeclaration(LNativeType.FUNCTION, "function", myFunction));
+        child.declare(new LDeclaration(LNativeType.FUNCTION, "function", myFunction));
 
         assertEquals("child should match our function", myFunction, child.findFunction("function", Collections.singletonList(LNativeType.INT)));
 
@@ -112,7 +111,7 @@ public class ScopeTests {
     public void testSetModifiers() {
         LScope scope = newInstance();
 
-        LDeclarable declarable = new LSimpleDeclaration(LNativeType.VOID, "test");
+        LDeclaration declarable = new LDeclaration(LNativeType.VOID, "test");
 
         scope.declare(declarable, LModifier.FINAL);
 
@@ -122,7 +121,7 @@ public class ScopeTests {
     @Test
     public void testSetSelf() {
         LScope scope = newInstance();
-        LObject object = new LClass();
+        LObject object = new LClass("test");
 
         scope.setSelf(object);
 
@@ -136,9 +135,9 @@ public class ScopeTests {
 
         parent.enter(child);
 
-        LDeclarable privateOne = new LSimpleDeclaration(LNativeType.VOID, "private");
-        LDeclarable publicOne = new LSimpleDeclaration(LNativeType.VOID, "public");
-        LDeclarable protectedOne = new LSimpleDeclaration(LNativeType.VOID, "protected");
+        LDeclaration privateOne = new LDeclaration(LNativeType.VOID, "private");
+        LDeclaration publicOne = new LDeclaration(LNativeType.VOID, "public");
+        LDeclaration protectedOne = new LDeclaration(LNativeType.VOID, "protected");
 
         parent.declare(privateOne, LModifier.PRIVATE);
         parent.declare(publicOne, LModifier.PUBLIC);

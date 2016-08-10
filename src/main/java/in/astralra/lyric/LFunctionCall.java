@@ -47,9 +47,7 @@ public class LFunctionCall implements LExpression {
 
         @Override
         public LFunction invokeWith(Collection<LExpression> arguments) {
-            return scope.findFunction(name, arguments.stream()
-                    .map(LExpression::getType)
-                    .collect(Collectors.toList()));
+            return scope.findFunction(name, LFunction.map(arguments));
         }
     }
 }

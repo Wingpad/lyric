@@ -1,0 +1,8 @@
+class Int {
+
+    private var value:N->I
+
+    public Int(native: N->I) {
+        value = native
+    }
+}

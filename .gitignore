@@ -1,1 +1,2 @@
-build
+build/
+src/main/java/in/astralra/lyric/gen/

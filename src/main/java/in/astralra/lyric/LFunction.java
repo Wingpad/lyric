@@ -1,31 +1,24 @@
 package in.astralra.lyric;
 
-import in.astralra.lyric.impl.LNativeType;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Created by jszaday on 8/5/2016.
  */
-public class LFunction extends LObject {
+public class LFunction extends LObject implements LBlock {
 
-    private HashMap<String, LType> _arguments;
-    private LType _returnType;
+    private HashMap<String, LType> arguments;
+    private LType returnType;
+    private LBlock block;
+    private List<Object> elements = new ArrayList<>();
 
-    public LFunction() {
-        this(new HashMap<>());
-    }
-
-    public LFunction(HashMap<String, LType> _arguments) {
-        this._arguments = _arguments;
+    public LFunction(HashMap<String, LType> arguments) {
+        this.arguments = arguments;
     }
 
     public LType getReturnType() {
-        return _returnType;
+        return returnType;
     }
 
     public boolean argumentsMatch(LFunction other) {
@@ -49,11 +42,11 @@ public class LFunction extends LObject {
     }
 
     public Collection<LType> getArguments() {
-        return _arguments.values();
+        return arguments.values();
     }
 
     public void putArgument(String name, LType type) {
-        _arguments.put(name, type);
+        arguments.put(name, type);
     }
 
     public LType getType() {
@@ -62,10 +55,31 @@ public class LFunction extends LObject {
 
     @Override
     public LFunction invokeWith(Collection<LExpression> arguments) {
-        if (argumentsMatch(arguments.stream().map(LExpression::getType).collect(Collectors.toList()))) {
+        if (argumentsMatch(map(arguments))) {
             return this;
         } else {
             throw new IllegalArgumentException("Arguments don't match.");
         }
+    }
+
+    @Override
+    public LScope getScope() {
+        return this;
+    }
+
+    @Override
+    public LBlock add(Object object) {
+        elements.add(object);
+
+        return this;
+    }
+
+    @Override
+    public List<Object> list() {
+        return elements;
+    }
+
+    public static Collection<LType> map(Collection<LExpression> expressions) {
+        return expressions.stream().map(LExpression::getType).collect(Collectors.toList());
     }
 }

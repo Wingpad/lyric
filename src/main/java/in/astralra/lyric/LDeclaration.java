@@ -1,29 +1,29 @@
-package in.astralra.lyric.impl;
+package in.astralra.lyric;
 
-import in.astralra.lyric.LDeclarable;
-import in.astralra.lyric.LObject;
-import in.astralra.lyric.LType;
-
+import java.util.List;
 import java.util.Optional;
 
 /**
  * Created by jszaday on 8/4/2016.
  */
-public class LSimpleDeclaration implements LDeclarable {
-
+public class LDeclaration {
     private final LType type;
     private final String name;
-    private final LObject object;
-    private int modifiers;
+    private final LExpression object;
+    private int modifiers = 0;
 
-    public LSimpleDeclaration(LType type, String name) {
+    public LDeclaration(LType type, String name) {
         this(type, name, null);
     }
 
-    public LSimpleDeclaration(LType type, String name, LObject object) {
+    public LDeclaration(LType type, String name, LExpression object) {
         this.type = type;
         this.name = name;
         this.object = object;
+
+        if (object instanceof LInstance) {
+            ((LInstance) object).setTypes(type.getTypeParameters());
+        }
     }
 
     public LType getType() {
@@ -34,23 +34,23 @@ public class LSimpleDeclaration implements LDeclarable {
         return name;
     }
 
-    @Override
     public boolean isValid() {
         return object == null || type.isAssignableFrom(object.getType());
     }
 
-    @Override
-    public Optional<LObject> getValue() {
+    public Optional<LExpression> getValue() {
         return Optional.ofNullable(object);
     }
 
-    @Override
     public int getModifiers() {
         return modifiers;
     }
 
-    @Override
+    public List<LType> getImplementedTypes() {
+        return null;
+    }
+
     public void setModifiers(int modifiers) {
-        this.modifiers = modifiers;
+        this.modifiers |= modifiers;
     }
 }

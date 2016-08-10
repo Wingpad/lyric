@@ -1,7 +1,5 @@
 package in.astralra.lyric;
 
-import in.astralra.lyric.impl.LNativeType;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -10,11 +8,10 @@ import java.util.stream.Stream;
  * Created by jszaday on 8/4/2016.
  */
 public class LScope {
-    private LObject self;
     private LScope parent;
-    private List<LDeclarable> declarations = new ArrayList<>();
+    private List<LDeclaration> declarations = new ArrayList<>();
 
-    private static boolean containsFunctions(List<LDeclarable> declarations) {
+    private static boolean containsFunctions(List<LDeclaration> declarations) {
         return declarations.stream()
                 .filter(declaration -> declaration.getType() == LNativeType.FUNCTION)
                 .findFirst().isPresent();
@@ -30,11 +27,15 @@ public class LScope {
         return child;
     }
 
+    public LScope getParent() {
+        return parent;
+    }
+
     public void setParent(LScope parent) {
         this.parent = parent;
     }
 
-    public void declare(LDeclarable declarable, LModifier... modifiers) throws LAlreadyDeclaredException {
+    public void declare(LDeclaration declarable, LModifier... modifiers) throws LAlreadyDeclaredException {
         if (doesNotContain(declarable)) {
             declarable.setModifiers(LModifier.reduceToInt(declarable.getModifiers(), modifiers));
             
@@ -44,8 +45,8 @@ public class LScope {
         }
     }
 
-    private boolean doesNotContain(LDeclarable declaration) {
-        Optional<LObject> value = declaration.getValue();
+    private boolean doesNotContain(LDeclaration declaration) {
+        Optional<LExpression> value = declaration.getValue();
 
         if (value.isPresent() && declaration.getType() == LNativeType.FUNCTION) {
             return findFunction(declaration.getName(), ((LFunction) value.get()).getArguments(), false) == null;
@@ -54,8 +55,8 @@ public class LScope {
         }
     }
 
-    public List<LDeclarable> findByName(String name, boolean recursive) {
-        List<LDeclarable> declarations = this.declarations
+    public List<LDeclaration> findByName(String name, boolean recursive) {
+        List<LDeclaration> declarations = this.declarations
                 .stream()
                 .filter(declaration -> declaration.getName().equals(name))
                 .collect(Collectors.toList());
@@ -79,7 +80,7 @@ public class LScope {
         return declarations;
     }
 
-    public List<LDeclarable> findByName(String name) {
+    public List<LDeclaration> findByName(String name) {
         return findByName(name, true);
     }
 
@@ -91,7 +92,7 @@ public class LScope {
         Optional<LFunction> function = declarations.stream()
                 .filter(declaration -> declaration.getName().equals(name))
                 .filter(declaration -> declaration.getType() == LNativeType.FUNCTION)
-                .map(LDeclarable::getValue)
+                .map(LDeclaration::getValue)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(LFunction.class::cast)
@@ -107,26 +108,36 @@ public class LScope {
         }
     }
 
+    public LDeclaration findDeclarableForFunction(LFunction function) {
+        Optional<LDeclaration> found = declarations.stream()
+                .filter(declarable -> declarable.getType().equals(LNativeType.FUNCTION))
+                .filter(declarable -> declarable.getValue().isPresent())
+                .filter(declarable -> declarable.getValue().get().equals(function))
+                .findFirst();
+
+        if (found.isPresent()) {
+            return found.get();
+        } else if (parent != null) {
+            return parent.findDeclarableForFunction(function);
+        } else {
+            return null;
+        }
+    }
+
     public static class LAlreadyDeclaredException extends RuntimeException {
         LAlreadyDeclaredException(String name) {
             super("Scope already contains a variable with name " + name);
         }
     }
 
-    public LObject getSelf() {
-        return self;
-    }
-
-    public void setSelf(LObject self) {
-        this.self = self;
-    }
-
-    private boolean isDeclaredInScope(final LDeclarable declarable) {
+    private boolean isDeclaredInScope(final LDeclaration declarable) {
         return declarations.stream().anyMatch(declared -> declarable == declared);
     }
 
-    public boolean isAccessible(final LDeclarable declarable) {
-        boolean isDeclaredInSelf = self != null && ((LScope) self).isDeclaredInScope(declarable);
+    public boolean isAccessible(final LDeclaration declarable) {
+        LScope self = getSelf();
+
+        boolean isDeclaredInSelf = self != null && self.isDeclaredInScope(declarable);
         boolean isDeclaredInParent = parent != null && parent.isDeclaredInScope(declarable);
         boolean isDeclaredHere = isDeclaredInScope(declarable);
 
@@ -135,7 +146,19 @@ public class LScope {
         } else if (LModifier.PROTECTED.isPresent(declarable.getModifiers())) {
             return isDeclaredHere || isDeclaredInSelf || isDeclaredInParent;
         } else {
-            return LModifier.PUBLIC.isPresent(declarable.getModifiers());
+            // A declaration is accessible when it is A) Public or B) Default
+            // TODO: 8/9/2016 Should this just return true?? What about static?
+            return LModifier.PUBLIC.isPresent(declarable.getModifiers()) || declarable.getModifiers() == 0;
+        }
+    }
+
+    public LClass getSelf() {
+        if (this instanceof LClass) {
+            return (LClass) this;
+        } else if (parent == null) {
+            return null;
+        } else {
+            return parent.getSelf();
         }
     }
 }

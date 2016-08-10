@@ -1,8 +1,11 @@
-package in.astralra.lyric.impl;
+package in.astralra.lyric;
 
 import in.astralra.lyric.LType;
+import in.astralra.lyric.LTypeParameter;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -47,5 +50,16 @@ public enum LNativeType implements LType {
     @Override
     public boolean isAssignableFrom(LType other) {
         return this == VOID || this == other;
+    }
+
+    @Override
+    public List<LType> getTypeParameters() {
+        return Collections.emptyList();
+    }
+
+    public static Optional<LNativeType> lookup(final String name) {
+        return Arrays.stream(values())
+                .filter(value -> value.getName().equals(name))
+                .findFirst();
     }
 }
