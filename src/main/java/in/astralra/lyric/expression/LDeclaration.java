@@ -1,4 +1,8 @@
-package in.astralra.lyric;
+package in.astralra.lyric.expression;
+
+import in.astralra.lyric.core.LInstance;
+import in.astralra.lyric.core.LObject;
+import in.astralra.lyric.core.LType;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,14 +13,14 @@ import java.util.Optional;
 public class LDeclaration {
     private final LType type;
     private final String name;
-    private final LExpression object;
+    private final LObject object;
     private int modifiers = 0;
 
     public LDeclaration(LType type, String name) {
         this(type, name, null);
     }
 
-    public LDeclaration(LType type, String name, LExpression object) {
+    public LDeclaration(LType type, String name, LObject object) {
         this.type = type;
         this.name = name;
         this.object = object;
@@ -38,7 +42,7 @@ public class LDeclaration {
         return object == null || type.isAssignableFrom(object.getType());
     }
 
-    public Optional<LExpression> getValue() {
+    public Optional<LObject> getValue() {
         return Optional.ofNullable(object);
     }
 

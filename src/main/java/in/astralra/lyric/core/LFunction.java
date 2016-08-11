@@ -1,4 +1,7 @@
-package in.astralra.lyric;
+package in.astralra.lyric.core;
+
+import in.astralra.lyric.expression.LDeclaration;
+import in.astralra.lyric.expression.LExpression;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -6,15 +9,26 @@ import java.util.stream.Collectors;
 /**
  * Created by jszaday on 8/5/2016.
  */
-public class LFunction extends LObject implements LBlock {
+public class LFunction extends LScope implements LBlock {
 
-    private HashMap<String, LType> arguments;
+    private Map<String, LType> arguments;
     private LType returnType;
     private LBlock block;
     private List<Object> elements = new ArrayList<>();
 
-    public LFunction(HashMap<String, LType> arguments) {
+    public LFunction() {
+        this(new HashMap<>());
+    }
+
+    public LFunction(Map<String, LType> arguments) {
+        this(null, arguments);
+    }
+
+    public LFunction(LType returnType, Map<String, LType> arguments) {
         this.arguments = arguments;
+        this.returnType = returnType;
+
+        arguments.forEach((name, type) -> declare(new LDeclaration(type, name), LModifier.FINAL));
     }
 
     public LType getReturnType() {

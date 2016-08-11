@@ -1,4 +1,6 @@
-package in.astralra.lyric;
+package in.astralra.lyric.expression;
+
+import in.astralra.lyric.core.LOperator;
 
 /**
  * Created by jszaday on 8/9/2016.
@@ -13,4 +15,6 @@ public class LAssignment {
         this.operator = operator;
         this.value = value;
     }
+
+    // TODO: 8/9/2016 Might have to extend Declaration 
 }

@@ -1,4 +1,6 @@
-package in.astralra.lyric;
+package in.astralra.lyric.type;
+
+import in.astralra.lyric.core.LType;
 
 import java.util.List;
 
@@ -24,5 +26,10 @@ public class LTypeParameter implements LType {
     @Override
     public String getName() {
         return null;
+    }
+
+    @Override
+    public boolean isNativeType() {
+        throw new RuntimeException("What do??? This is weird.");
     }
 }

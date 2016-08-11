@@ -1,4 +1,4 @@
-package in.astralra.lyric;
+package in.astralra.lyric.core;
 
 import java.util.Arrays;
 

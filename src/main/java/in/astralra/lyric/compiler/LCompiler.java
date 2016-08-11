@@ -1,10 +1,15 @@
 package in.astralra.lyric.compiler;
 
-import in.astralra.lyric.*;
+import in.astralra.lyric.core.*;
+import in.astralra.lyric.expression.*;
 import in.astralra.lyric.gen.LyricBaseVisitor;
 import in.astralra.lyric.gen.LyricParser;
+import in.astralra.lyric.type.LClass;
+import in.astralra.lyric.type.LTypeReference;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by jszaday on 8/9/2016.
@@ -16,7 +21,7 @@ public class LCompiler extends LyricBaseVisitor<Object> {
 
     @Override
     public Object visitProgram(LyricParser.ProgramContext ctx) {
-        global = new LScope();
+        global = new LSimpleBlock();
 
         current = global;
 
@@ -62,20 +67,20 @@ public class LCompiler extends LyricBaseVisitor<Object> {
     @SuppressWarnings("unchecked")
     public Object visitConstructor(LyricParser.ConstructorContext ctx) {
         LFunction function = new LFunction(
-                (HashMap<String, LType>) visitFunctionArgumentList(ctx.functionArgumentList())
+                (LClass) current,
+                (Map<String, LType>) visitFunctionArgumentList(ctx.functionArgumentList())
         );
 
         visitBlock(ctx.block(), function);
 
-        if (current instanceof LClass) {
-            // TODO: 8/9/2016 Add to class in a way that preserves modifiers.
-            ((LClass) current).addConstructor(function);
-        }
+        // TODO: 8/9/2016 Add to class in a way that preserves modifiers.
+        ((LClass) current).addConstructor(function);
 
         return new LDeclaration(LNativeType.FUNCTION, "init", function);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object visitDeclaration(LyricParser.DeclarationContext ctx) {
         LDeclaration declaration;
 
@@ -102,7 +107,16 @@ public class LCompiler extends LyricBaseVisitor<Object> {
 
             declaration.setModifiers(flags);
         } else {
-            declaration = null;
+            LFunction function = new LFunction(
+                    ctx.type() == null ? null : (LType) visitType(ctx.type()),
+                    (Map<String, LType>) visitFunctionArgumentList(ctx.functionArgumentList())
+            );
+
+            visitBlock(ctx.block(), function);
+
+            declaration = new LDeclaration(LNativeType.FUNCTION, ctx.Id().getText(), function);
+
+            declaration.setModifiers(LModifier.FINAL.getFlag());
         }
 
         current.declare(declaration);
@@ -142,7 +156,8 @@ public class LCompiler extends LyricBaseVisitor<Object> {
                 throw new RuntimeException("Unable to resolve native type " + identifier);
             }
         } else {
-            return super.visitType(ctx);
+            // TODO: 8/10/2016 Add support for type parameters
+            return new LTypeReference(current, ctx.Id().getText());
         }
     }
 
@@ -211,8 +226,58 @@ public class LCompiler extends LyricBaseVisitor<Object> {
     public Object visitPrimaryExpression(LyricParser.PrimaryExpressionContext ctx) {
         if (ctx.Id() != null) {
             return new LReference(current, ctx.Id().getText());
+        } else if (ctx.NativeValue() != null) {
+            Matcher matcher = (Pattern.compile("N(<-|->)(.*?)\\((.*)\\)")).matcher(ctx.getText());
+            if (matcher.find()) {
+                boolean isPointer = matcher.group(1).equals("<-");
+                LNativeType type = LNativeType.lookup(matcher.group(2).trim()).get();
+                return new LNativeValue(type, matcher.group(3).trim(), isPointer);
+            } else {
+                throw new RuntimeException("Could not parse native expression: " + ctx.getText());
+            }
         } else {
             return null;
+        }
+    }
+
+    @Override
+    public Object visitPostfixExpression(LyricParser.PostfixExpressionContext ctx) {
+        if (ctx.Id() != null) {
+            // TODO: 8/10/2016 Add support for type parameters
+            LExpression left = (LExpression) visitPostfixExpression(ctx.postfixExpression());
+            return new LConnector(left, ctx.Id().getText());
+        } else if (ctx.LParen() != null) {
+            LExpression left = (LExpression) visitPostfixExpression(ctx.postfixExpression());
+            return new LFunctionCall(left, (Collection<LExpression>) visitArgumentExpressionList(ctx.argumentExpressionList()));
+        }
+        return super.visitPostfixExpression(ctx);
+    }
+
+    @Override
+    public Object visitArgumentExpressionList(LyricParser.ArgumentExpressionListContext ctx) {
+        List<LExpression> expressions = new ArrayList<>();
+
+        while (ctx != null) {
+            expressions.add((LExpression) visitConditionalExpression(ctx.conditionalExpression()));
+
+            ctx = ctx.argumentExpressionList();
+        }
+
+        Collections.reverse(expressions);
+
+        return expressions;
+    }
+
+    @Override
+    public Object visitAdditiveExpression(LyricParser.AdditiveExpressionContext ctx) {
+        if (ctx.additiveExpression() == null) {
+            return super.visitAdditiveExpression(ctx);
+        } else {
+            LExpression left = (LExpression) visitAdditiveExpression(ctx.additiveExpression());
+            LExpression right = (LExpression) visitMultiplicativeExpression(ctx.multiplicativeExpression());
+            LOperator operator = ctx.Plus() == null ? LOperator.SUBTRACT : LOperator.ADD;
+
+            return new LFunctionCall(new LConnector(left, operator.getFunction()), Collections.singletonList(right));
         }
     }
 }

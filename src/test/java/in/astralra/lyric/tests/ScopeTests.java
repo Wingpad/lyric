@@ -1,7 +1,9 @@
 package in.astralra.lyric.tests;
 
-import in.astralra.lyric.*;
-import in.astralra.lyric.LNativeType;
+import in.astralra.lyric.core.*;
+import in.astralra.lyric.expression.LDeclaration;
+import in.astralra.lyric.core.LModifier;
+import in.astralra.lyric.type.LClass;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -119,16 +121,6 @@ public class ScopeTests {
     }
 
     @Test
-    public void testSetSelf() {
-        LScope scope = newInstance();
-        LObject object = new LClass("test");
-
-        scope.setSelf(object);
-
-        assertEquals("self should be set", scope.getSelf(), object);
-    }
-
-    @Test
     public void testAccessibility() {
         LScope parent = newInstance();
         LScope child = newInstance();
@@ -150,6 +142,6 @@ public class ScopeTests {
     }
 
     public LScope newInstance() {
-        return new LScope();
+        return new LSimpleBlock();
     }
 }

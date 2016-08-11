@@ -1,4 +1,8 @@
-package in.astralra.lyric;
+package in.astralra.lyric.core;
+
+import in.astralra.lyric.expression.LDeclaration;
+import in.astralra.lyric.expression.LExpression;
+import in.astralra.lyric.type.LClass;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -7,7 +11,7 @@ import java.util.stream.Stream;
 /**
  * Created by jszaday on 8/4/2016.
  */
-public class LScope {
+public abstract class LScope implements LObject {
     private LScope parent;
     private List<LDeclaration> declarations = new ArrayList<>();
 
@@ -46,7 +50,7 @@ public class LScope {
     }
 
     private boolean doesNotContain(LDeclaration declaration) {
-        Optional<LExpression> value = declaration.getValue();
+        Optional<LObject> value = declaration.getValue();
 
         if (value.isPresent() && declaration.getType() == LNativeType.FUNCTION) {
             return findFunction(declaration.getName(), ((LFunction) value.get()).getArguments(), false) == null;

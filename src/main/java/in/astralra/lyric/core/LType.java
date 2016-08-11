@@ -1,4 +1,4 @@
-package in.astralra.lyric;
+package in.astralra.lyric.core;
 
 import java.util.List;
 
@@ -10,4 +10,5 @@ public interface LType {
     List<LType> getTypeParameters();
     String getIdentifier();
     String getName();
+    boolean isNativeType();
 }

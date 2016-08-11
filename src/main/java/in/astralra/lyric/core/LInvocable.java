@@ -1,4 +1,6 @@
-package in.astralra.lyric;
+package in.astralra.lyric.core;
+
+import in.astralra.lyric.expression.LExpression;
 
 import java.util.Collection;
 

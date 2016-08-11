@@ -1,12 +1,13 @@
-package in.astralra.lyric;
+package in.astralra.lyric.expression;
+
+import in.astralra.lyric.core.*;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 /**
  * Created by jszaday on 8/5/2016.
  */
-public class LFunctionCall implements LExpression {
+public class LFunctionCall extends LExpression {
 
     private LInvocable invocable;
     private LFunction resolved;
@@ -21,18 +22,19 @@ public class LFunctionCall implements LExpression {
         this(new LFunctionReference(scope, name), arguments);
     }
 
-    private LFunction resolve() {
+    @Override
+    public LType getType() {
+        return ((LFunction) getObject()).getReturnType();
+    }
+
+    @Override
+    LObject getObject() {
         if (resolved == null) {
             // TODO throw exception if still null?
             return (resolved = invocable.invokeWith(arguments));
         } else {
             return resolved;
         }
-    }
-
-    @Override
-    public LType getType() {
-        return resolve().getReturnType();
     }
 
     private static class LFunctionReference implements LInvocable {

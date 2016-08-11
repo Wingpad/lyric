@@ -1,4 +1,7 @@
-package in.astralra.lyric;
+package in.astralra.lyric.core;
+
+import in.astralra.lyric.expression.LExpression;
+import in.astralra.lyric.type.LClass;
 
 import java.util.Collection;
 import java.util.List;
@@ -6,7 +9,7 @@ import java.util.List;
 /**
  * Created by jszaday on 8/5/2016.
  */
-public class LInstance extends LObject {
+public class LInstance extends LScope {
 
     private LClass lClass;
     private List<LType> types;

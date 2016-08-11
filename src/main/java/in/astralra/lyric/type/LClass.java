@@ -1,4 +1,7 @@
-package in.astralra.lyric;
+package in.astralra.lyric.type;
+
+import in.astralra.lyric.core.*;
+import in.astralra.lyric.expression.LExpression;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -6,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Created by jszaday on 8/5/2016.
  */
-public class LClass extends LObject implements LType {
+public class LClass extends LScope implements LType {
 
     // Add parent classes - check if we can use generics and what isAssignable should do
 
@@ -63,6 +66,11 @@ public class LClass extends LObject implements LType {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean isNativeType() {
+        return false;
     }
 
     public boolean validTypes(List<LType> types) {

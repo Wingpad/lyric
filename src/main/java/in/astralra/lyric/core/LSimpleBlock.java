@@ -1,6 +1,9 @@
-package in.astralra.lyric;
+package in.astralra.lyric.core;
+
+import in.astralra.lyric.expression.LExpression;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,5 +27,15 @@ public class LSimpleBlock extends LScope implements LBlock {
     @Override
     public List<Object> list() {
         return list;
+    }
+
+    @Override
+    public LFunction invokeWith(Collection<LExpression> arguments) {
+        throw new RuntimeException("Cannot invoke a block.");
+    }
+
+    @Override
+    public LType getType() {
+        throw new RuntimeException("Blocks do not have a return type.");
     }
 }

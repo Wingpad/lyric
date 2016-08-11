@@ -1,7 +1,4 @@
-package in.astralra.lyric;
-
-import in.astralra.lyric.LType;
-import in.astralra.lyric.LTypeParameter;
+package in.astralra.lyric.core;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +52,11 @@ public enum LNativeType implements LType {
     @Override
     public List<LType> getTypeParameters() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isNativeType() {
+        return true;
     }
 
     public static Optional<LNativeType> lookup(final String name) {
