@@ -3,18 +3,31 @@ class Int {
     private var value:N->I
 
     public Int(native: N->I) {
+        # LObject_set(self, "value", native);
         value = native
     }
 
     public function plus(other: Int) {
+        # int32_t* ours = (int32_t*) LObject_get(self, "value");
         var ours = value
+        # int32_t* theirs = (int32_t*) LObject_get(other, "value");
         var theirs = other.value
+        # int32_t __val001 = (int32_t*) malloc(sizeof(int32_t));
+        # *__val001 = *ours + *theirs;
+        # return LFunction_invoke(LObject_lift(LInt, NULL, "I"), __val001, NULL);
         return Int(N->I(*ours + *theirs))
     }
 }
 
 function main() {
+    # int32_t __val001 = (int32_t*) malloc(sizeof(int32_t));
+    # *__val001 = 4;
+    # LObject* i = LFunction_invoke(LObject_lift(LInt, NULL, "I"), __val001, NULL);
     var i = Int(N->I(4))
+    # int32_t __val002 = (int32_t*) malloc(sizeof(int32_t));
+    # *__val002 = 4;
+    # LObject* j = LFunction_invoke(LObject_lift(LInt, NULL, "I"), __val002, NULL);
     var j = Int(N->I(4))
-    var k = i + j
+    # LObject* k = LFunction_invoke(LObject_lift(i, "plus", "LInt"), j, NULL);
+    var k = i + j # -> i.plus(j)
 }
