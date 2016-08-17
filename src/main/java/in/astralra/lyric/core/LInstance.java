@@ -32,7 +32,7 @@ public class LInstance extends LScope {
     }
 
     @Override
-    public LFunction invokeWith(Collection<LExpression> arguments) {
+    public LFunction lift(Collection<LExpression> arguments) {
         return null;
     }
 }

@@ -30,7 +30,7 @@ public class LSimpleBlock extends LScope implements LBlock {
     }
 
     @Override
-    public LFunction invokeWith(Collection<LExpression> arguments) {
+    public LFunction lift(Collection<LExpression> arguments) {
         throw new RuntimeException("Cannot invoke a block.");
     }
 

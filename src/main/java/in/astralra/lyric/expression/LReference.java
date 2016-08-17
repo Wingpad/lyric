@@ -1,7 +1,6 @@
 package in.astralra.lyric.expression;
 
 import in.astralra.lyric.core.*;
-import in.astralra.lyric.type.LClass;
 import in.astralra.lyric.type.LTypeReference;
 
 import java.util.Collection;
@@ -57,8 +56,8 @@ public class LReference extends LExpression {
     }
 
     @Override
-    public LFunction invokeWith(Collection<LExpression> arguments) {
-        LFunction function = getObject().invokeWith(arguments);
+    public LFunction lift(Collection<LExpression> arguments) {
+        LFunction function = getObject().lift(arguments);
 
         if (function == null) {
             function = scope.findFunction(target, LFunction.map(arguments));
@@ -71,5 +70,10 @@ public class LReference extends LExpression {
         }
 
         return function;
+    }
+
+    @Override
+    public String toString() {
+        return resolve().toString();
     }
 }

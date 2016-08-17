@@ -28,13 +28,21 @@ public class LFunctionCall extends LExpression {
     }
 
     @Override
-    LObject getObject() {
+    public LObject getObject() {
         if (resolved == null) {
             // TODO throw exception if still null?
-            return (resolved = invocable.invokeWith(arguments));
+            return (resolved = invocable.lift(arguments));
         } else {
             return resolved;
         }
+    }
+
+    public LInvocable getInvocable() {
+        return invocable;
+    }
+
+    public Collection<LExpression> getArguments() {
+        return arguments;
     }
 
     private static class LFunctionReference implements LInvocable {
@@ -48,7 +56,7 @@ public class LFunctionCall extends LExpression {
         }
 
         @Override
-        public LFunction invokeWith(Collection<LExpression> arguments) {
+        public LFunction lift(Collection<LExpression> arguments) {
             return scope.findFunction(name, LFunction.map(arguments));
         }
     }

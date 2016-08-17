@@ -33,7 +33,7 @@ public class LClass extends LScope implements LType {
     }
 
     @Override
-    public LFunction invokeWith(Collection<LExpression> arguments) {
+    public LFunction lift(Collection<LExpression> arguments) {
         final List<LType> types = arguments.stream().map(LExpression::getType).collect(Collectors.toList());
         Optional<LFunction> functionOptional = constructors.stream().filter(function -> function.argumentsMatch(types)).findFirst();
 
@@ -60,7 +60,8 @@ public class LClass extends LScope implements LType {
 
     @Override
     public String getIdentifier() {
-        return null;
+        // TODO: 8/13/2016 Check into what this should return because it probably shouldn't be this!!
+        return LNativeType.OBJECT.getIdentifier();
     }
 
     @Override

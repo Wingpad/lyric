@@ -25,7 +25,7 @@ public class LCompiler extends LyricBaseVisitor<Object> {
 
         current = global;
 
-        ctx.children.forEach(this::visit);
+        ctx.children.forEach(child -> ((LBlock) current).add(visit(child)));
 
         return global;
     }
@@ -76,7 +76,7 @@ public class LCompiler extends LyricBaseVisitor<Object> {
         // TODO: 8/9/2016 Add to class in a way that preserves modifiers.
         ((LClass) current).addConstructor(function);
 
-        return new LDeclaration(LNativeType.FUNCTION, "init", function);
+        return new LDeclaration(LNativeType.FUNCTION, "new", function);
     }
 
     @Override

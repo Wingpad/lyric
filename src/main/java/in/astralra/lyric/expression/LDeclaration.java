@@ -57,4 +57,9 @@ public class LDeclaration {
     public void setModifiers(int modifiers) {
         this.modifiers |= modifiers;
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

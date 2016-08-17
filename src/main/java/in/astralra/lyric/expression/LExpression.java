@@ -19,8 +19,8 @@ public abstract class LExpression implements LObject {
     }
 
     @Override
-    public LFunction invokeWith(Collection<LExpression> arguments) {
-        return getObject().invokeWith(arguments);
+    public LFunction lift(Collection<LExpression> arguments) {
+        return getObject().lift(arguments);
     }
 
     @Override

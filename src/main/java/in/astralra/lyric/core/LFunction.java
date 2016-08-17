@@ -2,6 +2,7 @@ package in.astralra.lyric.core;
 
 import in.astralra.lyric.expression.LDeclaration;
 import in.astralra.lyric.expression.LExpression;
+import in.astralra.lyric.type.LClass;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,11 +33,26 @@ public class LFunction extends LScope implements LBlock {
     }
 
     public LType getReturnType() {
-        return returnType;
+        if (returnType == null) {
+            return LNativeType.VOID;
+        } else {
+            return returnType;
+        }
     }
 
     public boolean argumentsMatch(LFunction other) {
         return argumentsMatch(other.getArguments());
+    }
+
+    public String getExternalName() {
+        LDeclaration declaration = findDeclarableForFunction(this);
+        String name = declaration == null ? "UNKNOWN" : declaration.getName();
+
+        if (getParent() instanceof LClass) {
+            name = ((LClass) getParent()).getName() + "_" + name;
+        }
+
+        return name;
     }
 
     public boolean argumentsMatch(Collection<LType> theirs) {
@@ -68,7 +84,7 @@ public class LFunction extends LScope implements LBlock {
     }
 
     @Override
-    public LFunction invokeWith(Collection<LExpression> arguments) {
+    public LFunction lift(Collection<LExpression> arguments) {
         if (argumentsMatch(map(arguments))) {
             return this;
         } else {

@@ -3,7 +3,6 @@ package in.astralra.lyric.expression;
 import in.astralra.lyric.core.*;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ public class LConnector extends LExpression {
         if (type == LConnectorType.DOT) {
             return identifier;
         } else {
-            return identifier.invokeWith(expressions);
+            return identifier.lift(expressions);
         }
     }
 
