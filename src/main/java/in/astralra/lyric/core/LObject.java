@@ -22,5 +22,7 @@ public interface LObject extends LInvocable {
 
     List<LDeclaration> findByName(String name);
 
+    boolean isMember(LDeclaration declaration);
+
     LType getType();
 }

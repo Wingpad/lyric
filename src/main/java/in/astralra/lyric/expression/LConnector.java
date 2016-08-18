@@ -38,7 +38,13 @@ public class LConnector extends LExpression implements LAssignable {
 
     @Override
     public String assign(LExpression value) {
-        return null;
+        // TODO handle other cases - like ARRAY
+        switch (type) {
+            case DOT:
+                return "LObject_set(" + identifier.getScope() + ", \"" + identifier.getTarget() + "\", " + value + ")";
+            default:
+                return null;
+        }
     }
 
     private enum LConnectorType {

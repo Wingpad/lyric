@@ -138,6 +138,16 @@ public abstract class LScope implements LObject {
         return declarations.stream().anyMatch(declared -> declarable == declared);
     }
 
+    public boolean isMember(final LDeclaration declaration) {
+        LScope self = getSelf();
+
+        if (self == null) {
+            return false;
+        } else {
+            return self.isDeclaredInScope(declaration);
+        }
+    }
+
     public boolean isAccessible(final LDeclaration declarable) {
         LScope self = getSelf();
 

@@ -19,6 +19,11 @@ public abstract class LExpression implements LObject {
     }
 
     @Override
+    public boolean isMember(LDeclaration declaration) {
+        return getObject().isMember(declaration);
+    }
+
+    @Override
     public LFunction lift(Collection<LExpression> arguments) {
         return getObject().lift(arguments);
     }

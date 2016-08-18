@@ -20,6 +20,14 @@ public class LReference extends LExpression implements LAssignable {
         this.target = target;
     }
 
+    public LObject getScope() {
+        return scope;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
     public LDeclaration resolve() {
         if (resolved == null) {
             List<LDeclaration> declarations = scope.findByName(target);
@@ -79,6 +87,12 @@ public class LReference extends LExpression implements LAssignable {
 
     @Override
     public String assign(LExpression value) {
-        return null;
+        LDeclaration resolved = resolve();
+
+        if (scope.isMember(resolved)) {
+            return new LConnector(new LNativeValue(LNativeType.OBJECT, "self", true), target).assign(value);
+        } else {
+            return scope + " = " + target;
+        }
     }
 }
