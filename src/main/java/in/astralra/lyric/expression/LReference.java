@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by jszaday on 8/9/2016.
  */
-public class LReference extends LExpression {
+public class LReference extends LExpression implements LAssignable {
 
     private LObject scope;
     private String target;
@@ -75,5 +75,10 @@ public class LReference extends LExpression {
     @Override
     public String toString() {
         return resolve().toString();
+    }
+
+    @Override
+    public String assign(LExpression value) {
+        return null;
     }
 }

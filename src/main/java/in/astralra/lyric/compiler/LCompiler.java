@@ -71,12 +71,22 @@ public class LCompiler extends LyricBaseVisitor<Object> {
                 (Map<String, LType>) visitFunctionArgumentList(ctx.functionArgumentList())
         );
 
+        function.add(new LAssignment(
+                new LNativeValue(LNativeType.OBJECT, "self", true),
+                null,
+                new LNativeValue(LNativeType.OBJECT, "LClass_instantiate(" + ((LClass) current).getName() + ")", true))
+        );
+
         visitBlock(ctx.block(), function);
 
-        // TODO: 8/9/2016 Add to class in a way that preserves modifiers.
-        ((LClass) current).addConstructor(function);
+        LDeclaration declaration = new LDeclaration(LNativeType.FUNCTION, "new", function);
 
-        return new LDeclaration(LNativeType.FUNCTION, "new", function);
+        // TODO: 8/9/2016 Add to class in a way that preserves modifiers.
+        ((LClass) current).addConstructor(declaration);
+
+        function.add(new LReturn(new LNativeValue(LNativeType.OBJECT, "self", true)));
+
+        return declaration;
     }
 
     @Override
@@ -211,7 +221,11 @@ public class LCompiler extends LyricBaseVisitor<Object> {
         LExpression right = (LExpression) visit(ctx.conditionalExpression());
 
         if (operator.isPresent()) {
-            return new LAssignment(left, operator.get(), right);
+            if (left instanceof LAssignable) {
+                return new LAssignment((LAssignable) left, operator.get(), right);
+            } else {
+                throw new RuntimeException("Cannot assign a value to a(n) " + left.getClass().getSimpleName());
+            }
         } else {
             throw new RuntimeException("No operator found for " + ctx.assignmentOperator().getText());
         }

@@ -9,7 +9,7 @@ import java.util.List;
  * Created by jszaday on 8/5/2016.
  */
 // TODO: 8/9/2016 Might have to extend Assignment 
-public class LConnector extends LExpression {
+public class LConnector extends LExpression implements LAssignable {
 
     private LReference identifier;
     private LConnectorType type;
@@ -34,6 +34,11 @@ public class LConnector extends LExpression {
         } else {
             return identifier.lift(expressions);
         }
+    }
+
+    @Override
+    public String assign(LExpression value) {
+        return null;
     }
 
     private enum LConnectorType {

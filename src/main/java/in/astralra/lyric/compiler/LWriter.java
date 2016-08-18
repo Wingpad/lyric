@@ -36,7 +36,7 @@ public class LWriter {
         } else if (element instanceof LFunctionCall) {
             return visitFunctionCall((LFunctionCall) element);
         } else {
-            return null;
+            return String.valueOf(element);
         }
     }
 
@@ -65,7 +65,7 @@ public class LWriter {
         Optional<LObject> value = declaration.getValue();
         if (value.isPresent()) {
             if (declaration.getType() == LNativeType.CLASS) {
-
+                return visitClass((LClass) value.get());
             } else if (declaration.getType() == LNativeType.FUNCTION) {
                 return visitFunction((LFunction) value.get());
             } else {
@@ -75,6 +75,16 @@ public class LWriter {
             builder.append(";").append(System.lineSeparator());
         }
 
+
+        return builder.toString();
+    }
+
+    private String visitClass(LClass lClass) {
+        final StringBuilder builder = new StringBuilder();
+
+        lClass.getConstructors().stream()
+                .map(this::visitDeclaration)
+                .forEach(builder::append);
 
         return builder.toString();
     }

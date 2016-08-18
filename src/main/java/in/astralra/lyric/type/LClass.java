@@ -1,6 +1,7 @@
 package in.astralra.lyric.type;
 
 import in.astralra.lyric.core.*;
+import in.astralra.lyric.expression.LDeclaration;
 import in.astralra.lyric.expression.LExpression;
 
 import java.util.*;
@@ -14,7 +15,7 @@ public class LClass extends LScope implements LType {
     // Add parent classes - check if we can use generics and what isAssignable should do
 
     private List<LType> typeParameters;
-    private List<LFunction> constructors;
+    private List<LDeclaration> constructors;
     private String name;
 
     public LClass(String name) {
@@ -35,7 +36,11 @@ public class LClass extends LScope implements LType {
     @Override
     public LFunction lift(Collection<LExpression> arguments) {
         final List<LType> types = arguments.stream().map(LExpression::getType).collect(Collectors.toList());
-        Optional<LFunction> functionOptional = constructors.stream().filter(function -> function.argumentsMatch(types)).findFirst();
+        Optional<LFunction> functionOptional = constructors.stream()
+                .map(LDeclaration::getValue)
+                .map(Optional::get)
+                .map(LFunction.class::cast)
+                .filter(function -> function.argumentsMatch(types)).findFirst();
 
         if (functionOptional.isPresent()) {
             return functionOptional.get();
@@ -44,8 +49,12 @@ public class LClass extends LScope implements LType {
         }
     }
 
-    public void addConstructor(LFunction lFunction) {
+    public void addConstructor(LDeclaration lFunction) {
         constructors.add(lFunction);
+    }
+
+    public List<LDeclaration> getConstructors() {
+        return constructors;
     }
 
     @Override

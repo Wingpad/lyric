@@ -2,7 +2,10 @@ package in.astralra.lyric.core;
 
 import in.astralra.lyric.expression.LDeclaration;
 import in.astralra.lyric.expression.LExpression;
+import in.astralra.lyric.expression.LReference;
+import in.astralra.lyric.expression.LReturn;
 import in.astralra.lyric.type.LClass;
+import in.astralra.lyric.type.LPrimitive;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,10 +37,36 @@ public class LFunction extends LScope implements LBlock {
 
     public LType getReturnType() {
         if (returnType == null) {
-            return LNativeType.VOID;
+            return (returnType = findReturnType());
         } else {
             return returnType;
         }
+    }
+
+    private LType findReturnType() {
+        LType returnType = null;
+
+        for (Object element: list()) {
+            if (element instanceof LReturn) {
+                LType other = ((LReturn) element).getType();
+                if (returnType == null) {
+                    returnType = other;
+                } else if (returnType.isAssignableFrom(other)) {
+                    continue;
+                } else if (other.isAssignableFrom(returnType)) {
+                    returnType = other;
+                } else {
+                    throw new RuntimeException(other + " is not assignable from " + returnType);
+                }
+            }
+        }
+
+        if (returnType == null) {
+            // This should actually be the high-level LVoid
+            returnType = LPrimitive.VOID;
+        }
+
+        return returnType;
     }
 
     public boolean argumentsMatch(LFunction other) {

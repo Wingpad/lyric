@@ -80,6 +80,14 @@ LInvocable : Interface
 
 LScope
 
+LFunction
+- isLocal()
+- isAnonymous()
+
+LElement
+- toString()
+- needsSemicolon()
+
 
 LObject extends Scope
 
