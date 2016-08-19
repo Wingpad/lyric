@@ -1,0 +1,44 @@
+class Test {
+  static function staticTest(value: Int) : Test {
+    // ...
+  }
+
+  static function staticTest(value: String) : Test {
+    // ...
+  }
+
+  function normalTest(value: Int) : Int {
+    // ...
+  }
+
+  function normalTest(value: String) : String {
+    // ...
+  }
+
+  function normalTest(value: String) : Int { // --> Conflicts with another definition
+    // ...
+  }
+
+  var lambdaTest = (value: Int) -> {
+    // ...
+  }
+}
+
+var myTest = Test();
+
+Test.staticTest       // --> Function invocation expected
+Test::staticTest      // --> Ambiguous Function Reference
+Test::staticTest<Int> // OK -> Function<String, String>
+
+Test::normalTest      // --> cannot refer to "normalTest" in a static context
+myTest.normalTest     // --> function invocation expected
+myTest::normalTest    // --> Ambiguous Function Reference
+myTest::normalTest<String> // OK -> Function<String, String>
+// Internally sets 'self' of the returned Function to myTest
+// LObject_lift(myTest, "normalTest", "LString")
+
+// ::something
+// @::something
+// something.something::something
+
+myTest.lambdaTest // --> OK

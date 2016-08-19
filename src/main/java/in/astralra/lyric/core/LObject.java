@@ -1,7 +1,6 @@
 package in.astralra.lyric.core;
 
 import in.astralra.lyric.expression.LDeclaration;
-import in.astralra.lyric.type.LClass;
 
 import java.util.Collection;
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.List;
 /**
  * Created by jszaday on 8/5/2016.
  */
-public interface LObject extends LInvocable {
+public interface LObject extends LInvokable {
     boolean isAccessible(LDeclaration declaration);
 
     LFunction findFunction(String name, Collection<LType> arguments);

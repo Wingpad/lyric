@@ -8,6 +8,7 @@ import in.astralra.lyric.type.LClass;
 import in.astralra.lyric.type.LPrimitive;
 
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -84,6 +85,12 @@ public class LFunction extends LScope implements LBlock {
         return name;
     }
 
+    public String getIdentifier() {
+        return arguments.values().stream()
+                .map(LType::getName)
+                .collect(Collectors.joining(";"));
+    }
+
     public boolean argumentsMatch(Collection<LType> theirs) {
         Collection<LType> ours = getArguments();
         Iterator<LType> ourIterator = ours.iterator(),
@@ -113,12 +120,17 @@ public class LFunction extends LScope implements LBlock {
     }
 
     @Override
-    public LFunction lift(Collection<LExpression> arguments) {
+    public LFunction liftFunction(Collection<LExpression> arguments) {
         if (argumentsMatch(map(arguments))) {
             return this;
         } else {
             throw new IllegalArgumentException("Arguments don't match.");
         }
+    }
+
+    @Override
+    public String lift(Collection<LExpression> arguments) {
+        throw new UnsupportedOperationException("You've gone too deep! You can't lift a function!");
     }
 
     @Override
@@ -138,7 +150,7 @@ public class LFunction extends LScope implements LBlock {
         return elements;
     }
 
-    public static Collection<LType> map(Collection<LExpression> expressions) {
+    public static List<LType> map(Collection<LExpression> expressions) {
         return expressions.stream().map(LExpression::getType).collect(Collectors.toList());
     }
 }

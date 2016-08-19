@@ -7,6 +7,7 @@ import java.util.Collection;
 /**
  * Created by jszaday on 8/5/2016.
  */
-public interface LInvocable {
-    LFunction lift(Collection<LExpression> arguments);
+public interface LInvokable {
+    String lift(Collection<LExpression> arguments);
+    LFunction liftFunction(Collection<LExpression> arguments);
 }

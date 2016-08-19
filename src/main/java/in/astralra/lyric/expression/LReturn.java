@@ -3,6 +3,8 @@ package in.astralra.lyric.expression;
 import in.astralra.lyric.core.LObject;
 import in.astralra.lyric.core.LType;
 
+import java.util.Collection;
+
 /**
  * Created by jszaday on 8/17/2016.
  */
@@ -26,6 +28,11 @@ public class LReturn extends LExpression {
 
     @Override
     public String toString() {
-        return "return " + value + ";";
+        return "return " + value;
+    }
+
+    @Override
+    public String lift(Collection<LExpression> arguments) {
+        throw new RuntimeException("Return statements do not provide an object.");
     }
 }

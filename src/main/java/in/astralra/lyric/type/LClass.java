@@ -34,7 +34,7 @@ public class LClass extends LScope implements LType {
     }
 
     @Override
-    public LFunction lift(Collection<LExpression> arguments) {
+    public LFunction liftFunction(Collection<LExpression> arguments) {
         final List<LType> types = arguments.stream().map(LExpression::getType).collect(Collectors.toList());
         Optional<LFunction> functionOptional = constructors.stream()
                 .map(LDeclaration::getValue)
@@ -46,6 +46,17 @@ public class LClass extends LScope implements LType {
             return functionOptional.get();
         } else {
             return null;
+        }
+    }
+
+    @Override
+    public String lift(Collection<LExpression> arguments) {
+        LFunction lifted = liftFunction(arguments);
+
+        if (lifted == null) {
+            throw new RuntimeException("You tried lifting a constructor that is not present.");
+        } else {
+            return "LObject_lift(" + getName() + ", NULL, \"" + lifted.getIdentifier() + "\")";
         }
     }
 

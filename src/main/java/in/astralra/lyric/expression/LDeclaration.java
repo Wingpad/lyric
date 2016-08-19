@@ -39,7 +39,8 @@ public class LDeclaration {
     }
 
     public boolean isValid() {
-        return object == null || type.isAssignableFrom(object.getType());
+        return !type.getIdentifier().equals("NULL") && (object == null || type.isAssignableFrom(object
+                .getType()));
     }
 
     public Optional<LObject> getValue() {

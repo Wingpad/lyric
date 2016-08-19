@@ -64,8 +64,8 @@ public class LReference extends LExpression implements LAssignable {
     }
 
     @Override
-    public LFunction lift(Collection<LExpression> arguments) {
-        LFunction function = getObject().lift(arguments);
+    public LFunction liftFunction(Collection<LExpression> arguments) {
+        LFunction function = getObject().liftFunction(arguments);
 
         if (function == null) {
             function = scope.findFunction(target, LFunction.map(arguments));
@@ -78,6 +78,11 @@ public class LReference extends LExpression implements LAssignable {
         }
 
         return function;
+    }
+
+    @Override
+    public String lift(Collection<LExpression> arguments) {
+        return getObject().lift(arguments);
     }
 
     @Override

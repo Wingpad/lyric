@@ -1,16 +1,18 @@
 package in.astralra.lyric.expression;
 
+import in.astralra.lyric.core.LElement;
 import in.astralra.lyric.core.LFunction;
 import in.astralra.lyric.core.LObject;
 import in.astralra.lyric.core.LType;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by jszaday on 8/4/2016.
  */
-public abstract class LExpression implements LObject {
+public abstract class LExpression implements LObject, LElement {
     abstract LObject getObject();
 
     @Override
@@ -24,8 +26,8 @@ public abstract class LExpression implements LObject {
     }
 
     @Override
-    public LFunction lift(Collection<LExpression> arguments) {
-        return getObject().lift(arguments);
+    public LFunction liftFunction(Collection<LExpression> arguments) {
+        return getObject().liftFunction(arguments);
     }
 
     @Override
@@ -56,5 +58,15 @@ public abstract class LExpression implements LObject {
     @Override
     public List<LDeclaration> findByName(String name) {
         return getObject().findByName(name);
+    }
+
+    @Override
+    public List<LElement> getBackElements() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean needsSemicolon() {
+        return true;
     }
 }

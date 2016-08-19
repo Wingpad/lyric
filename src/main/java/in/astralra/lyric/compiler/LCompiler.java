@@ -294,4 +294,17 @@ public class LCompiler extends LyricBaseVisitor<Object> {
             return new LFunctionCall(new LConnector(left, operator.getFunction()), Collections.singletonList(right));
         }
     }
+
+    @Override
+    public Object visitReturnStatement(LyricParser.ReturnStatementContext ctx) {
+        LExpression expression;
+
+        if (ctx.expression() == null) {
+            expression = null;
+        } else {
+            expression = (LExpression) visitExpression(ctx.expression());
+        }
+
+        return new LReturn(expression);
+    }
 }

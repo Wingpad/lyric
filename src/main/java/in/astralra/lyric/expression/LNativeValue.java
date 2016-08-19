@@ -2,6 +2,7 @@ package in.astralra.lyric.expression;
 
 import in.astralra.lyric.core.*;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,5 +52,10 @@ public class LNativeValue extends LExpression implements LAssignable, LElement {
         } else {
             throw new UnsupportedOperationException("Can't generate back elements for a native value yet.");
         }
+    }
+
+    @Override
+    public String lift(Collection<LExpression> arguments) {
+        throw new RuntimeException("Can't lift from dis yet.");
     }
 }

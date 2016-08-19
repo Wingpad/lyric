@@ -6,6 +6,7 @@ import in.astralra.lyric.expression.LFunctionCall;
 import in.astralra.lyric.gen.LyricVisitor;
 import in.astralra.lyric.type.LClass;
 
+import javax.sound.midi.SysexMessage;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,8 +34,12 @@ public class LWriter {
             return visitBlock((LBlock) element);
         } else if (element instanceof LDeclaration) {
             return visitDeclaration((LDeclaration) element);
-        } else if (element instanceof LFunctionCall) {
-            return visitFunctionCall((LFunctionCall) element);
+        } else if (element instanceof LElement) {
+            if (((LElement) element).needsSemicolon()) {
+                return String.valueOf(element) + ";" + System.lineSeparator();
+            } else {
+                return String.valueOf(element);
+            }
         } else {
             return String.valueOf(element);
         }
@@ -44,7 +49,7 @@ public class LWriter {
         final StringBuilder result = new StringBuilder();
 
         if (block != mainBlock) {
-            result.append("{");
+            result.append("{").append(System.lineSeparator());
         }
 
         block.list().forEach(element -> result.append(visit(element)));
@@ -58,6 +63,10 @@ public class LWriter {
 
     private String visitDeclaration(LDeclaration declaration) {
         final StringBuilder builder = new StringBuilder();
+
+        if (!declaration.isValid()) {
+            throw new RuntimeException("Invalid declaration, " + declaration + "!");
+        }
 
         builder.append("\t").append(declaration.getType().getIdentifier());
         builder.append(" ").append(declaration.getName());
@@ -98,17 +107,6 @@ public class LWriter {
                 .append(function.getExternalName()).append("(LObject* self, uint32_t argc, void** argv) ");
 
         builder.append(visitBlock(function));
-
-        return builder.toString();
-    }
-
-    private String visitFunctionCall(LFunctionCall functionCall) {
-        final StringBuilder builder = new StringBuilder();
-        LFunction target = (LFunction) functionCall.getObject();
-
-        builder.append("LObject_invoke(").append(functionCall.getInvocable()).append(", ").append(target.getExternalName()).append(", ");
-
-        builder.append(functionCall.getArguments().stream().map(this::visit).collect(Collectors.joining(", "))).append(")");
 
         return builder.toString();
     }
