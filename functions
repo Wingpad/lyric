@@ -1,0 +1,23 @@
+LObject* LClass_instantiate(LObject* self);
+bool     LClass_isAssignableFrom(LObject* self, LObject* other);
+LObject* LClass_forName(char* name);
+
+void*       LObject_get(LObject* self, char* field);
+void        LObject_set(LObject* self, char* field, void* newValue);
+LFunction*  LObject_lift(LObject* self, char* field, char* signature);
+
+LObject*    LFunction_invoke(LFunction* self, ...);
+LObject*    LFunction_invokeWithTuple(LFunction* self, LObject* tuple);
+LFunction*  LFunction_clone(LFunction* function, LObject* newSelf);
+
+typedef struct LFunction {
+  LObject* self;
+  NFunction native;
+  char* signature;
+} LFunction;
+
+typedef struct LObject {
+  LObject* lClass;
+  LObject* base;
+  LField* first;
+}
