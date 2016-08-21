@@ -2,13 +2,13 @@ package in.astralra.lyric.core;
 
 import in.astralra.lyric.expression.LDeclaration;
 import in.astralra.lyric.expression.LExpression;
-import in.astralra.lyric.expression.LReference;
+import in.astralra.lyric.expression.LNativeValue;
 import in.astralra.lyric.expression.LReturn;
 import in.astralra.lyric.type.LClass;
+import in.astralra.lyric.type.LNativeType;
 import in.astralra.lyric.type.LPrimitive;
 
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -33,7 +33,18 @@ public class LFunction extends LScope implements LBlock {
         this.arguments = arguments;
         this.returnType = returnType;
 
-        arguments.forEach((name, type) -> declare(new LDeclaration(type, name), LModifier.FINAL));
+        int i = 0;
+        for (String name : arguments.keySet()) {
+            LType actual = arguments.get(name);
+            LNativeType type = actual instanceof LNativeType ? (LNativeType) actual : LNativeType.OBJECT;
+            LNativeValue value = new LNativeValue(null, type, "(" + type.getIdentifier() + ") argv[" + i + "]", true);
+            LDeclaration declaration = new LDeclaration(actual, name, value);
+
+            add(declaration);
+            declare(declaration, LModifier.FINAL);
+
+            i++;
+        }
     }
 
     public LType getReturnType() {
@@ -47,7 +58,7 @@ public class LFunction extends LScope implements LBlock {
     private LType findReturnType() {
         LType returnType = null;
 
-        for (Object element: list()) {
+        for (Object element : list()) {
             if (element instanceof LReturn) {
                 LType other = ((LReturn) element).getType();
                 if (returnType == null) {
@@ -63,7 +74,6 @@ public class LFunction extends LScope implements LBlock {
         }
 
         if (returnType == null) {
-            // This should actually be the high-level LVoid
             returnType = LPrimitive.VOID;
         }
 
@@ -75,11 +85,28 @@ public class LFunction extends LScope implements LBlock {
     }
 
     public String getExternalName() {
-        LDeclaration declaration = findDeclarableForFunction(this);
-        String name = declaration == null ? "UNKNOWN" : declaration.getName();
+        String name = getReferenceName();
 
         if (getParent() instanceof LClass) {
             name = ((LClass) getParent()).getName() + "_" + name;
+        } else {
+            name = "Lyric_" + name;
+        }
+
+        return name;
+    }
+
+    public String getReferenceName() {
+        LDeclaration declaration = findDeclarableForFunction(this);
+        String name = declaration == null ? null : declaration.getName();
+        String identifier = getIdentifier().replace(";", "And");
+
+        if (name == null && getParent() instanceof LClass) {
+            name = "init";
+        }
+
+        if (!identifier.isEmpty()) {
+            name += "With" + identifier;
         }
 
         return name;
@@ -130,7 +157,12 @@ public class LFunction extends LScope implements LBlock {
 
     @Override
     public String lift(Collection<LExpression> arguments) {
-        throw new UnsupportedOperationException("You've gone too deep! You can't lift a function!");
+//        if (argumentsMatch(LFunction.map(arguments))) {
+//            return getExternalName() + "(" + arguments.stream().map(String::valueOf).collect(Collectors.joining(", "));
+//        } else {
+//            throw new RuntimeException("Arguments don't match!");
+//        }
+        throw new RuntimeException("You can't lift a function!");
     }
 
     @Override

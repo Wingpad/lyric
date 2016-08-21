@@ -1,7 +1,9 @@
 package in.astralra.lyric.expression;
 
 import in.astralra.lyric.core.*;
+import in.astralra.lyric.type.LNativeType;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -12,17 +14,34 @@ import java.util.List;
 public class LNativeValue extends LExpression implements LAssignable, LElement {
     private LNativeType type;
     private String expression;
-    private boolean isPointer;
+    private String original;
+    private List<LElement> backElements;
 
-    public LNativeValue(LNativeType type, String expression, boolean isPointer) {
-        this.type = type;
+    public LNativeValue(LScope scope, LNativeType type, String expression, boolean isPointer) {
         this.expression = expression;
-        this.isPointer = isPointer;
+        this.type = type;
+
+        if (isPointer) {
+            this.backElements = Collections.emptyList();
+        } else {
+            String name = scope.issueValue();
+            String plainType = type.getIdentifier().replaceAll("\\*", "");
+            LDeclaration declaration = new LDeclaration(type, name, new LNativeValue(null, type, "(" + type.getIdentifier() + ") malloc(sizeof(" + plainType + "))", true));
+            scope.declare(declaration);
+
+            this.original = expression;
+            this.backElements = Arrays.asList(declaration, new LAssignment(declaration, LOperator.NONE, this));
+            this.expression = name;
+        }
     }
 
     @Override
     public LType getType() {
         return type;
+    }
+
+    public String getOriginal() {
+        return original;
     }
 
     @Override
@@ -47,11 +66,7 @@ public class LNativeValue extends LExpression implements LAssignable, LElement {
 
     @Override
     public List<LElement> getBackElements() {
-        if (isPointer) {
-            return Collections.emptyList();
-        } else {
-            throw new UnsupportedOperationException("Can't generate back elements for a native value yet.");
-        }
+        return backElements;
     }
 
     @Override

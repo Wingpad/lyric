@@ -1,12 +1,11 @@
 package in.astralra.lyric.expression;
 
 import in.astralra.lyric.core.*;
+import in.astralra.lyric.type.LNativeType;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static in.astralra.lyric.core.LFunction.map;
 
 /**
  * Created by jszaday on 8/5/2016.
@@ -87,9 +86,12 @@ public class LConnector extends LExpression implements LAssignable {
         }
     }
 
-
-
     private enum LConnectorType {
         DOT, ARRAY, REFERENCE
+    }
+
+    @Override
+    public String toString() {
+        return "LObject_get(" + identifier.getScope() + ", \"" + getObject().toString() + "\")";
     }
 }

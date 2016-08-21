@@ -1,6 +1,6 @@
 class Int {
 
-    private var value:N->I
+    private var value: N->I
 
     public Int(native: N->I) {
         # LObject_set(self, "value", native);
@@ -17,6 +17,26 @@ class Int {
         # return LFunction_invoke(LObject_lift(LInt, NULL, "I"), __val001, NULL);
         return Int(N->I(*ours + *theirs))
     }
+
+    public function toString() {
+        var ours = value
+        var buffer = N<-C((char*) calloc(33, sizeof(char)))
+        N<-V(sprintf(buffer, "%d", *ours))
+        return String(buffer)
+    }
+}
+
+class String {
+    private var value: N->C
+
+    public String(native: N->C) {
+        value = native
+    }
+}
+
+function log(s: String) {
+    var buffer = s.value
+    N<-V(printf(buffer))
 }
 
 function main() {
@@ -30,4 +50,6 @@ function main() {
     var j = Int(N->I(4))
     # LObject* k = LFunction_invoke(LObject_lift(i, "plus", "LInt"), j, NULL);
     var k = i + j # -> i.plus(j)
+    # Log the converted string
+    log(k.toString())
 }

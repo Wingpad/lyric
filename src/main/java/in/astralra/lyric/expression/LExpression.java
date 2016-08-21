@@ -69,4 +69,9 @@ public abstract class LExpression implements LObject, LElement {
     public boolean needsSemicolon() {
         return true;
     }
+
+    @Override
+    public LObject getSelf() {
+        return getObject().getSelf();
+    }
 }

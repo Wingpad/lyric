@@ -1,16 +1,16 @@
 package in.astralra.lyric.expression;
 
-import in.astralra.lyric.core.LInstance;
-import in.astralra.lyric.core.LObject;
-import in.astralra.lyric.core.LType;
+import in.astralra.lyric.core.*;
+import in.astralra.lyric.type.LClass;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Created by jszaday on 8/4/2016.
  */
-public class LDeclaration {
+public class LDeclaration implements LElement, LAssignable {
     private final LType type;
     private final String name;
     private final LObject object;
@@ -60,7 +60,30 @@ public class LDeclaration {
     }
 
     @Override
-    public String toString() {
-        return getName();
+    public boolean needsSemicolon() {
+        return true;
+    }
+
+    @Override
+    public List<LElement> getBackElements() {
+        if (object instanceof LElement) {
+            return ((LElement) object).getBackElements();
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public String assign(LExpression value) {
+        if (type.isNativeType()) {
+            String expression;
+            if (value instanceof LNativeValue && (expression = ((LNativeValue) value).getOriginal()) != null) {
+                return "*" + name + " = " + expression;
+            } else {
+                return name + " = (" + type.getIdentifier() + ") " + value.toString();
+            }
+        } else {
+            throw new RuntimeException("This might be an invalid assignment.");
+        }
     }
 }

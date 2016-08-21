@@ -75,7 +75,8 @@ public class LClass extends LScope implements LType {
 
     @Override
     public boolean isAssignableFrom(LType other) {
-        return other == this || (other instanceof LClass && ((LScope) other).getParent() == this);
+        // Need to check all parents
+        return other == LNativeType.OBJECT || other == this || (other instanceof LClass && ((LScope) other).getParent() == this);
     }
 
     @Override
@@ -108,5 +109,14 @@ public class LClass extends LScope implements LType {
         } else {
             return false;
         }
+    }
+
+    public List<LFunction> getMembers() {
+        return getDeclarations().stream()
+                .filter(declaration -> declaration.getType() == LNativeType.FUNCTION)
+                .map(LDeclaration::getValue)
+                .map(Optional::get)
+                .map(LFunction.class::cast)
+                .collect(Collectors.toList());
     }
 }

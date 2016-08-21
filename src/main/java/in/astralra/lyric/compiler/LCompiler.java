@@ -5,6 +5,7 @@ import in.astralra.lyric.expression.*;
 import in.astralra.lyric.gen.LyricBaseVisitor;
 import in.astralra.lyric.gen.LyricParser;
 import in.astralra.lyric.type.LClass;
+import in.astralra.lyric.type.LNativeType;
 import in.astralra.lyric.type.LTypeReference;
 
 import java.util.*;
@@ -72,9 +73,9 @@ public class LCompiler extends LyricBaseVisitor<Object> {
         );
 
         function.add(new LAssignment(
-                new LNativeValue(LNativeType.OBJECT, "self", true),
+                new LNativeValue(current, LNativeType.OBJECT, "self", true),
                 null,
-                new LNativeValue(LNativeType.OBJECT, "LClass_instantiate(" + ((LClass) current).getName() + ")", true))
+                new LNativeValue(current, LNativeType.OBJECT, "LClass_instantiate(" + ((LClass) current).getName() + ")", true))
         );
 
         visitBlock(ctx.block(), function);
@@ -84,7 +85,7 @@ public class LCompiler extends LyricBaseVisitor<Object> {
         // TODO: 8/9/2016 Add to class in a way that preserves modifiers.
         ((LClass) current).addConstructor(declaration);
 
-        function.add(new LReturn(new LNativeValue(LNativeType.OBJECT, "self", true)));
+        function.add(new LReturn(new LNativeValue(current, LNativeType.OBJECT, "self", true)));
 
         return declaration;
     }
@@ -245,7 +246,7 @@ public class LCompiler extends LyricBaseVisitor<Object> {
             if (matcher.find()) {
                 boolean isPointer = matcher.group(1).equals("<-");
                 LNativeType type = LNativeType.lookup(matcher.group(2).trim()).get();
-                return new LNativeValue(type, matcher.group(3).trim(), isPointer);
+                return new LNativeValue(current, type, matcher.group(3).trim(), isPointer);
             } else {
                 throw new RuntimeException("Could not parse native expression: " + ctx.getText());
             }

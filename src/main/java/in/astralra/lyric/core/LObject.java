@@ -24,4 +24,5 @@ public interface LObject extends LInvokable {
     boolean isMember(LDeclaration declaration);
 
     LType getType();
+    LObject getSelf();
 }

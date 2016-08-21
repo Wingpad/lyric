@@ -1,6 +1,7 @@
 package in.astralra.lyric.expression;
 
 import in.astralra.lyric.core.*;
+import in.astralra.lyric.type.LNativeType;
 import in.astralra.lyric.type.LTypeReference;
 
 import java.util.Collection;
@@ -14,6 +15,8 @@ public class LReference extends LExpression implements LAssignable {
     private LObject scope;
     private String target;
     private LDeclaration resolved;
+
+    private static LNativeValue SELF = new LNativeValue(null, LNativeType.OBJECT, "self", true);
 
     public LReference(LObject scope, String target) {
         this.scope = scope;
@@ -82,12 +85,24 @@ public class LReference extends LExpression implements LAssignable {
 
     @Override
     public String lift(Collection<LExpression> arguments) {
-        return getObject().lift(arguments);
+        LObject obj = getObject();
+
+        if (obj instanceof LFunction) {
+            return ((LFunction) obj).getReferenceName();
+        } else {
+            return obj.lift(arguments);
+        }
     }
 
     @Override
     public String toString() {
-        return resolve().toString();
+        LDeclaration resolved = resolve();
+
+        if (!(scope instanceof LReference) && scope.isMember(resolved)) {
+            return "LObject_get(self, \"" + target + "\")";
+        } else {
+            return resolve().getName();
+        }
     }
 
     @Override
@@ -95,9 +110,14 @@ public class LReference extends LExpression implements LAssignable {
         LDeclaration resolved = resolve();
 
         if (scope.isMember(resolved)) {
-            return new LConnector(new LNativeValue(LNativeType.OBJECT, "self", true), target).assign(value);
+            return new LConnector(SELF, target).assign(value);
         } else {
             return scope + " = " + target;
         }
+    }
+
+    @Override
+    public LObject getSelf() {
+        return scope.getSelf();
     }
 }

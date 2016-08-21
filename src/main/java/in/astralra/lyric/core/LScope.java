@@ -1,8 +1,8 @@
 package in.astralra.lyric.core;
 
 import in.astralra.lyric.expression.LDeclaration;
-import in.astralra.lyric.expression.LExpression;
 import in.astralra.lyric.type.LClass;
+import in.astralra.lyric.type.LNativeType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,12 +13,45 @@ import java.util.stream.Stream;
  */
 public abstract class LScope implements LObject {
     private LScope parent;
-    private List<LDeclaration> declarations = new ArrayList<>();
+    private List<LDeclaration> declarations;
+
+    private static final String VALUE_PREFIX = "__val";
+
+    public LScope() {
+        this(null);
+    }
+
+    public LScope(LScope parent) {
+        this.parent = parent;
+        this.declarations = new ArrayList<>();
+    }
 
     private static boolean containsFunctions(List<LDeclaration> declarations) {
         return declarations.stream()
                 .filter(declaration -> declaration.getType() == LNativeType.FUNCTION)
                 .findFirst().isPresent();
+    }
+
+    protected List<LDeclaration> getDeclarations() {
+        return declarations;
+    }
+
+    public String issueValue() {
+        OptionalInt optionalInt = declarations.stream()
+                .map(LDeclaration::getName)
+                .filter(declaration -> declaration.startsWith(VALUE_PREFIX))
+                .map(declaration -> declaration.substring(5))
+                .mapToInt(Integer::parseInt)
+                .max();
+
+        int increment;
+        if (optionalInt.isPresent()) {
+            increment = optionalInt.getAsInt() + 1;
+        } else {
+            increment = 0;
+        }
+
+        return VALUE_PREFIX + increment;
     }
 
     public LScope leave() {
@@ -166,6 +199,7 @@ public abstract class LScope implements LObject {
         }
     }
 
+    @Override
     public LClass getSelf() {
         if (this instanceof LClass) {
             return (LClass) this;

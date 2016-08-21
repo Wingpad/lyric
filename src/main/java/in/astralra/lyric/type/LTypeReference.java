@@ -1,12 +1,10 @@
 package in.astralra.lyric.type;
 
-import in.astralra.lyric.core.LNativeType;
 import in.astralra.lyric.core.LObject;
 import in.astralra.lyric.core.LScope;
 import in.astralra.lyric.core.LType;
 import in.astralra.lyric.expression.LDeclaration;
 
-import javax.management.RuntimeMBeanException;
 import java.util.List;
 import java.util.Optional;
 

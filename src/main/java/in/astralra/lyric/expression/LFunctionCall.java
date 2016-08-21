@@ -2,7 +2,9 @@ package in.astralra.lyric.expression;
 
 import in.astralra.lyric.core.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -45,6 +47,14 @@ public class LFunctionCall extends LExpression {
 
     public Collection<LExpression> getArguments() {
         return arguments;
+    }
+
+    @Override
+    public List<LElement> getBackElements() {
+        return arguments.stream()
+                .map(LExpression::getBackElements)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     @Override

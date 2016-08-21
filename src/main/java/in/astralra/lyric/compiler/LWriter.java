@@ -2,13 +2,10 @@ package in.astralra.lyric.compiler;
 
 import in.astralra.lyric.core.*;
 import in.astralra.lyric.expression.LDeclaration;
-import in.astralra.lyric.expression.LFunctionCall;
-import in.astralra.lyric.gen.LyricVisitor;
 import in.astralra.lyric.type.LClass;
+import in.astralra.lyric.type.LNativeType;
 
-import javax.sound.midi.SysexMessage;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Created by jszaday on 8/13/2016.
@@ -26,23 +23,34 @@ public class LWriter {
     }
 
     private String visit(Object element) {
-//        if (element instanceof LScope) {
-//            current = (LScope) element;
-//        }
+        return visit(element, true);
+    }
+
+    private String visit(Object element, boolean visitBackElements) {
+        final StringBuilder result = new StringBuilder();
+
+        if (element instanceof LElement && visitBackElements) {
+            ((LElement) element).getBackElements()
+                    .forEach(backElement -> result.append(visit(backElement)));
+        }
 
         if (element instanceof LBlock) {
-            return visitBlock((LBlock) element);
+            result.append(visitBlock((LBlock) element));
         } else if (element instanceof LDeclaration) {
-            return visitDeclaration((LDeclaration) element);
-        } else if (element instanceof LElement) {
-            if (((LElement) element).needsSemicolon()) {
-                return String.valueOf(element) + ";" + System.lineSeparator();
-            } else {
-                return String.valueOf(element);
-            }
+            result.append(visitDeclaration((LDeclaration) element));
         } else {
-            return String.valueOf(element);
+            if (visitBackElements) {
+                result.append("\t");
+            }
+
+            result.append(String.valueOf(element));
         }
+
+        if (element instanceof LElement && ((LElement) element).needsSemicolon() && visitBackElements) {
+            result.append(";").append(System.lineSeparator());
+        }
+
+        return result.toString();
     }
 
     private String visitBlock(LBlock block) {
@@ -78,10 +86,8 @@ public class LWriter {
             } else if (declaration.getType() == LNativeType.FUNCTION) {
                 return visitFunction((LFunction) value.get());
             } else {
-                builder.append(" = ").append(visit(value.get()));
+                builder.append(" = ").append(visit(value.get(), false));
             }
-        } else {
-            builder.append(";").append(System.lineSeparator());
         }
 
 
@@ -92,22 +98,19 @@ public class LWriter {
         final StringBuilder builder = new StringBuilder();
 
         lClass.getConstructors().stream()
-                .map(this::visitDeclaration)
+                .map(this::visit)
+                .forEach(builder::append);
+
+        lClass.getMembers().stream()
+                .map(this::visitFunction)
                 .forEach(builder::append);
 
         return builder.toString();
     }
 
     private String visitFunction(LFunction function) {
-        final StringBuilder builder = new StringBuilder();
-
-        builder
-                .append(LNativeType.OBJECT.getIdentifier())
-                .append(" ")
-                .append(function.getExternalName()).append("(LObject* self, uint32_t argc, void** argv) ");
-
-        builder.append(visitBlock(function));
-
-        return builder.toString();
+        return LNativeType.OBJECT.getIdentifier() + " " +
+                function.getExternalName() + "(LObject* self, uint32_t argc, void** argv) " +
+                visitBlock(function);
     }
 }

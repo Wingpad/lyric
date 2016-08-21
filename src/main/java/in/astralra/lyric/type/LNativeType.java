@@ -1,4 +1,6 @@
-package in.astralra.lyric.core;
+package in.astralra.lyric.type;
+
+import in.astralra.lyric.core.LType;
 
 import java.util.Arrays;
 import java.util.Collections;

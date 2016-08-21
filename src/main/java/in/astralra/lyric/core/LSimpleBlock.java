@@ -1,5 +1,6 @@
 package in.astralra.lyric.core;
 
+import in.astralra.lyric.expression.LDeclaration;
 import in.astralra.lyric.expression.LExpression;
 
 import java.util.ArrayList;

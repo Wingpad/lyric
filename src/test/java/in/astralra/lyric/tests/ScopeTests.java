@@ -3,7 +3,7 @@ package in.astralra.lyric.tests;
 import in.astralra.lyric.core.*;
 import in.astralra.lyric.expression.LDeclaration;
 import in.astralra.lyric.core.LModifier;
-import in.astralra.lyric.type.LClass;
+import in.astralra.lyric.type.LNativeType;
 import org.junit.Test;
 
 import java.util.Collections;
