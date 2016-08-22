@@ -47,10 +47,10 @@ LObject* LFunction_invoke(LFunction* self, ...) {
 
 LFunction* LFunction_clone(LFunction* function, LObject* newSelf) {
 	// Initialize a function with the correct fields
-	return LFunction_init(newSelf, function->native, function->signature);
+	return LFunction_new(newSelf, function->native, function->signature);
 }
 
-LFunction* LFunction_init(LObject* self, NFunction function, char* signature) {
+LFunction* LFunction_new(LObject* self, NFunction function, char* signature) {
 	// Allocate a new function
 	LFunction* newFunction = (LFunction*)malloc(sizeof(LFunction));
 	// Copy all of the properties to it

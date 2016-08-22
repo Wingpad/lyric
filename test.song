@@ -34,8 +34,11 @@ class String {
     }
 }
 
+# LObject* Lyric_logWithString(LObject* self, uint32_t argc, void** argv)
 function log(s: String) {
+    # char* buffer = LObject_get(s, "value");
     var buffer = s.value
+    # printf(buffer);
     N<-V(printf(buffer))
 }
 
@@ -50,6 +53,6 @@ function main() {
     var j = Int(N->I(4))
     # LObject* k = LFunction_invoke(LObject_lift(i, "plus", "LInt"), j, NULL);
     var k = i + j # -> i.plus(j)
-    # Log the converted string
+    # LFunction_invoke(logWithString, LFunction_invoke(LObject_lift(k, "toString", ""), NULL), NULL);
     log(k.toString())
 }

@@ -102,7 +102,7 @@ public class LFunction extends LScope implements LBlock {
         String identifier = getIdentifier().replace(";", "And");
 
         if (name == null && getParent() instanceof LClass) {
-            name = "init";
+            name = "new";
         }
 
         if (!identifier.isEmpty()) {

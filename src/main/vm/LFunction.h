@@ -16,6 +16,6 @@ typedef struct LFunction {
 
 struct LObject*	LFunction_invoke(LFunction* self, ...);
 LFunction*		LFunction_clone(LFunction* function, struct LObject* newSelf);
-LFunction*		LFunction_init(struct LObject* self, NFunction function, char* signature);
+LFunction*		LFunction_new(struct LObject* self, NFunction function, char* signature);
 
 #endif

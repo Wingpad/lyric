@@ -1,5 +1,5 @@
-#ifndef LYRIC_OBJECT_H
-#define LYRIC_OBJECT_H
+#ifndef FUNDAMENTAL_LOBJECT_H
+#define FUNDAMENTAL_LOBJECT_H
 
 // For uint32_t
 #include <stdint.h>
@@ -15,28 +15,29 @@
 struct LFunction;
 
 typedef struct LObjectNode {
-	void* value;
-	uint32_t hash;
+    uint32_t    hash;
+	void*       value;
+    char*       type;
 	// TODO Make finalizing a field actually do something (and a method to "freeze" a field)
-	bool finalized;
+	bool        finalized;
 	struct LObjectNode* next;
 } LObjectNode;
 
 typedef struct LObject {
-	LObjectNode* first;
+	LObjectNode*    first;
 	struct LObject* base;
-	char* type;
+	char*           type;
+    void*           metadata;
 } LObject;
-
-typedef struct LClass {
-	struct LObject obj;
-	LObjectNode* objsNodes;
-} LClass;
 
 LObjectNode*		LObject_findField(LObject* self, char* name, uint32_t* hash);
 void				LObject_set(LObject* self, char* name, void* value);
 void				LObject_put(LObject* self, char* name, struct LFunction* value);
 void*				LObject_get(LObject* self, char* name);
 struct LFunction*	LObject_lift(LObject* self, char* name, char* signature);
+LObject*            LClass_instantiate(LObject* lClass);
+
+LObjectNode*        LObjectNode_new(char* type, char* name, void* value, LObjectNode* next);
+LObject*            LObject_new(char* type, LObject* base);
 
 #endif

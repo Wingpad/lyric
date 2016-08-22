@@ -119,4 +119,9 @@ public class LClass extends LScope implements LType {
                 .map(LFunction.class::cast)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<LDeclaration> getDeclarations() {
+        return super.getDeclarations();
+    }
 }

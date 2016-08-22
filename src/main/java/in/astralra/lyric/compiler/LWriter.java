@@ -2,6 +2,9 @@ package in.astralra.lyric.compiler;
 
 import in.astralra.lyric.core.*;
 import in.astralra.lyric.expression.LDeclaration;
+import in.astralra.lyric.expression.LManualElement;
+import in.astralra.lyric.expression.LNativeValue;
+import in.astralra.lyric.expression.LReturn;
 import in.astralra.lyric.type.LClass;
 import in.astralra.lyric.type.LNativeType;
 
@@ -104,6 +107,43 @@ public class LWriter {
         lClass.getMembers().stream()
                 .map(this::visitFunction)
                 .forEach(builder::append);
+
+        LFunction initializer = new LFunction();
+        initializer.add(new LManualElement("LObject* lClass = LObject_new(\"LClass\", NULL)"));
+
+        String next = "NULL";
+        for (LDeclaration constructor : lClass.getConstructors()) {
+            LFunction function = (LFunction) constructor.getValue().get();
+            String init = "LFunction_new(lClass, " + function.getExternalName() + ", \"" + function.getIdentifier() + "\")";
+            initializer.add(new LManualElement("lClass->first = LObjectNode_new(\"LFunction\", \"invoke\", " + init + ",  " + next + ")"));
+            next = next.equals("NULL") ? "lClass->first" : next;
+        }
+
+        initializer.add(new LManualElement("lClass->first = LObjectNode_new(\"C\", \"name\", \"" + lClass.getName() + "\", " + next + ")"));
+
+        next = "NULL";
+        for (LDeclaration field : lClass.getDeclarations()) {
+            String value;
+            Optional<LObject> object = field.getValue();
+            if (object.isPresent()) {
+                if (object.get() instanceof LFunction) {
+                    LFunction member = (LFunction) object.get();
+                    value = "LFunction_new(NULL, " + member.getExternalName() + ", \"" + member.getIdentifier() + "\")";
+                } else {
+                    throw new RuntimeException("Default values not supported for type " + object.get().getType() + "!");
+                }
+            } else {
+                value = "NULL";
+            }
+
+            initializer.add(new LManualElement("lClass->metadata = LObjectNode_new(\"" + field.getType().getName() + "\", \"" + field.getName() + "\", " + value + ", " + next + ")"));
+
+            next = next.equals("NULL") ? "(LObjectNode*) lClass->metadata" : next;
+        }
+
+        initializer.add(new LManualElement("return lClass"));
+
+        builder.append(LNativeType.OBJECT.getIdentifier()).append(" ").append(lClass.getName()).append("_allocate() ").append(visit(initializer));
 
         return builder.toString();
     }
