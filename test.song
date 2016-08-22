@@ -19,9 +19,13 @@ class Int {
     }
 
     public function toString() {
+        # int32_t* ours = LObject_get(self, "value");
         var ours = value
+        # char* buffer = (char*) calloc(33, sizeof(char));
         var buffer = N<-C((char*) calloc(33, sizeof(char)))
+        # sprintf(buffer, "%d", *ours);
         N<-V(sprintf(buffer, "%d", *ours))
+        # return LFunction_invoke(LObject_lift(String, NULL, "C"), buffer, NULL);
         return String(buffer)
     }
 }
@@ -30,6 +34,7 @@ class String {
     private var value: N->C
 
     public String(native: N->C) {
+        # LObject_set(self, "value", native);
         value = native
     }
 }
