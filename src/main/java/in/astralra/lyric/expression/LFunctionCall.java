@@ -1,9 +1,11 @@
 package in.astralra.lyric.expression;
 
 import in.astralra.lyric.core.*;
+import in.astralra.lyric.type.LClass;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,16 +29,21 @@ public class LFunctionCall extends LExpression {
 
     @Override
     public LType getType() {
-        return ((LFunction) getObject()).getReturnType();
+        return getObject().getType();
     }
 
     @Override
     public LObject getObject() {
         if (resolved == null) {
             // TODO throw exception if still null?
-            return (resolved = invocable.liftFunction(arguments));
+            // TODO this should actually return the value of the function's execution
+            resolved = invocable.liftFunction(arguments);
+        }
+
+        if (resolved.getReturnType().isNativeType()) {
+            throw new RuntimeException("Cannot resolve properties from " + resolved.getReturnType());
         } else {
-            return resolved;
+            return new LInstance((LClass) resolved.getReturnType(), Collections.emptyList());
         }
     }
 
@@ -52,6 +59,7 @@ public class LFunctionCall extends LExpression {
     @Override
     public List<LElement> getBackElements() {
         return arguments.stream()
+                .filter(element -> element != null)
                 .map(LExpression::getBackElements)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());

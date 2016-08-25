@@ -89,7 +89,7 @@ primaryExpression
 
 postfixExpression
     :   primaryExpression
-    |   postfixExpression '[' expression ']'
+    |   postfixExpression LBracket argumentExpressionList RBracket
     |   postfixExpression '.' (Id typeParameters*)
     |   postfixExpression LParen argumentExpressionList? RParen
     ;
@@ -232,6 +232,14 @@ GreaterThanEquals : '>=';
 Default : 'default';
 Ellipses : '...';
 Extends : 'extends';
+
+LBracket
+  : '['
+  ;
+
+RBracket
+  : ']'
+  ;
 
 LParen
     : '('

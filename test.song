@@ -39,6 +39,20 @@ class String {
     }
 }
 
+class Test {
+  public Test() {
+
+  }
+
+  public function get(i: Int) {
+    return i + Int(N->I(1));
+  }
+
+  public function set(i: Int, j: Int): Void {
+
+  }
+}
+
 # LObject* Lyric_logWithString(LObject* self, uint32_t argc, void** argv)
 function log(s: String) {
     # char* buffer = LObject_get(s, "value");
@@ -60,4 +74,6 @@ function main() {
     var k = i + j # -> i.plus(j)
     # LFunction_invoke(logWithString, LFunction_invoke(LObject_lift(k, "toString", ""), NULL), NULL);
     log(k.toString())
+    var test = Test()
+    test[i] = test[j] + k
 }

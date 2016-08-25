@@ -202,7 +202,7 @@ public class LCompiler extends LyricBaseVisitor<Object> {
         return visitBlock(ctx, new LSimpleBlock());
     }
 
-    public Object visitBlock(LyricParser.BlockContext ctx, LBlock block) {
+    private Object visitBlock(LyricParser.BlockContext ctx, LBlock block) {
         current = current.enter(block.getScope());
 
         // Add all of the children to the block
@@ -263,7 +263,10 @@ public class LCompiler extends LyricBaseVisitor<Object> {
             return new LConnector(left, ctx.Id().getText());
         } else if (ctx.LParen() != null) {
             LExpression left = (LExpression) visitPostfixExpression(ctx.postfixExpression());
-            return new LFunctionCall(left, (Collection<LExpression>) visitArgumentExpressionList(ctx.argumentExpressionList()));
+            return new LFunctionCall(left, (List<LExpression>) visitArgumentExpressionList(ctx.argumentExpressionList()));
+        } else if (ctx.LBracket() != null) {
+            LExpression left = (LExpression) visitPostfixExpression(ctx.postfixExpression());
+            return new LConnector(left, (List<LExpression>) visitArgumentExpressionList(ctx.argumentExpressionList()));
         }
         return super.visitPostfixExpression(ctx);
     }

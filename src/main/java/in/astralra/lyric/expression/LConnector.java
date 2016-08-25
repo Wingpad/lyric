@@ -31,9 +31,9 @@ public class LConnector extends LExpression implements LAssignable {
         this.type = LConnectorType.REFERENCE;
     }
 
-    public LConnector(LObject target, LExpression... expressions) {
+    public LConnector(LObject target, List<LExpression> expressions) {
         this.identifier = new LReference(target, "get");
-        this.expressions = Arrays.asList(expressions);
+        this.expressions = expressions;
         this.type = LConnectorType.ARRAY;
     }
 
@@ -47,9 +47,10 @@ public class LConnector extends LExpression implements LAssignable {
                 }
                 return identifier;
             case ARRAY:
-                return new LFunctionCall(identifier, "get", expressions);
+                return new LFunctionCall(identifier.getScope(), "get", expressions);
             case REFERENCE:
-                throw new RuntimeException("You can't 'get' a lifted thingamajig.");
+                // TODO determine what should really be here.
+                return identifier;
             default:
                 return null;
         }
@@ -57,14 +58,24 @@ public class LConnector extends LExpression implements LAssignable {
 
     @Override
     public String lift(Collection<LExpression> arguments) {
+        if (type == LConnectorType.DOT) {
+            type = LConnectorType.REFERENCE;
+        }
+
         if (types == null || types.isEmpty()) {
             types = LFunction.map(arguments);
         }
 
         String typeIdentifier = types.stream().map(LType::getName).collect(Collectors.joining(";"));
 
-        return "LObject_lift(" + identifier.getScope() + ", \"" + identifier.getTarget() + "\", \"" + typeIdentifier +
-                "\")";
+        if (type == LConnectorType.REFERENCE) {
+            return "LObject_lift(" + identifier.getScope() + ", \"" + identifier.getTarget() + "\", \"" + typeIdentifier +
+                    "\")";
+        } else if (type == LConnectorType.ARRAY) {
+            return null;
+        } else {
+            throw new RuntimeException("No idea how to lift dis shit.");
+        }
     }
 
     @Override
@@ -80,7 +91,7 @@ public class LConnector extends LExpression implements LAssignable {
                 // Tacking on the new value
                 mutable.add(value);
                 // Then make the call
-                return new LFunctionCall(identifier, "set", mutable).toString();
+                return new LFunctionCall(identifier.getScope(), "set", mutable).toString();
             default:
                 throw new RuntimeException("Cannot set the value of " + identifier);
         }
@@ -92,6 +103,10 @@ public class LConnector extends LExpression implements LAssignable {
 
     @Override
     public String toString() {
-        return "LObject_get(" + identifier.getScope() + ", \"" + getObject().toString() + "\")";
+        if (type == LConnectorType.ARRAY) {
+            return String.valueOf(getObject());
+        } else {
+            return "LObject_get(" + identifier.getScope() + ", \"" + getObject().toString() + "\")";
+        }
     }
 }
