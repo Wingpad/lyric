@@ -111,8 +111,25 @@ public class LReference extends LExpression implements LAssignable {
 
         if (scope.isMember(resolved)) {
             return new LConnector(SELF, target).assign(value);
+        } else if (getType().isNativeType()) {
+            if (value.getType().isNativeType()) {
+                if (getType() == LNativeType.VOID) {
+                    return target + " = (" + getType().getIdentifier() + ")" + value;
+                } else if (getType() == value.getType()) {
+                    return target + " = " + value;
+                } else {
+                    throw new RuntimeException("Cannot assign " + value + " to " + target + "!");
+                }
+            } else {
+                List<LDeclaration> found = value.findByName("value");
+                if (found.isEmpty() || found.get(0).getType() != getType()) {
+                    throw new RuntimeException("Cannot assign " + value + " to " + target + "!");
+                } else {
+                    return target + " = (" + getType().getIdentifier() + ")" + new LConnector(value, "value");
+                }
+            }
         } else {
-            return scope + " = " + target;
+            return target + " = " + value;
         }
     }
 

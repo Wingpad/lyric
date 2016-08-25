@@ -32,9 +32,32 @@ public class LConnector extends LExpression implements LAssignable {
     }
 
     public LConnector(LObject target, List<LExpression> expressions) {
-        this.identifier = new LReference(target, "get");
-        this.expressions = expressions;
-        this.type = LConnectorType.ARRAY;
+        if (target.getType().isNativeType()) {
+            this.type = LConnectorType.NATIVE_ARRAY;
+            this.identifier = (LReference) target;
+            this.expressions = expressions;
+
+            if (identifier.getType() == LNativeType.VOID) {
+                throw new RuntimeException("You cannot have a native array of type void!");
+            } else if (expressions.size() == 1) {
+                LExpression value = expressions.get(0);
+                if (!value.getType().isNativeType()) {
+                    List<LDeclaration> found = value.findByName("value");
+
+                    if (found.isEmpty() || !found.get(0).getType().isNativeType()) {
+                        throw new RuntimeException("Invalid argument, " + value);
+                    } else {
+                        this.expressions = Collections.singletonList(new LConnector(value, "value"));
+                    }
+                }
+            } else {
+                throw new RuntimeException("Invalid number of arguments, " + expressions.size());
+            }
+        } else {
+            this.identifier = new LReference(target, "get");
+            this.expressions = expressions;
+            this.type = LConnectorType.ARRAY;
+        }
     }
 
     @Override
@@ -92,13 +115,29 @@ public class LConnector extends LExpression implements LAssignable {
                 mutable.add(value);
                 // Then make the call
                 return new LFunctionCall(identifier.getScope(), "set", mutable).toString();
+            case NATIVE_ARRAY:
+                if (identifier.getType() != LNativeType.OBJECT && !value.getType().isNativeType()) {
+                    List<LDeclaration> found = value.findByName("value");
+                    if (found.isEmpty() || !found.get(0).getType().isNativeType()) {
+                        throw new RuntimeException("Assigning " + value + " to " + identifier + " is invalid!");
+                    } else {
+                        value = new LConnector(value, "value");
+                    }
+                }
+
+                if (identifier.getType() != value.getType()) {
+                    throw new RuntimeException("Assigning " + value + " to " + identifier + " is invalid!");
+                }
+
+                return identifier + "[*(" +(expressions.get(0).getType().getIdentifier())+ ")"+ expressions.get(0) +
+                    "] = *(" +identifier.getType().getIdentifier() + ")" + value;
             default:
                 throw new RuntimeException("Cannot set the value of " + identifier);
         }
     }
 
     private enum LConnectorType {
-        DOT, ARRAY, REFERENCE
+        DOT, ARRAY, REFERENCE, NATIVE_ARRAY
     }
 
     @Override
