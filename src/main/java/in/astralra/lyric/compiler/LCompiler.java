@@ -73,9 +73,9 @@ public class LCompiler extends LyricBaseVisitor<Object> {
         );
 
         function.add(new LAssignment(
-                new LNativeValue(current, LNativeType.OBJECT, "self", true),
+                new LNativeValue(current, LNativeType.OBJECT, true, "self"),
                 null,
-                new LNativeValue(current, LNativeType.OBJECT, "LClass_instantiate(" + ((LClass) current).getName() + ")", true))
+                new LNativeValue(current, LNativeType.OBJECT, true, "LClass_instantiate(" + ((LClass) current).getName() + ")"))
         );
 
         visitBlock(ctx.block(), function);
@@ -85,7 +85,7 @@ public class LCompiler extends LyricBaseVisitor<Object> {
         // TODO: 8/9/2016 Add to class in a way that preserves modifiers.
         ((LClass) current).addConstructor(declaration);
 
-        function.add(new LReturn(new LNativeValue(current, LNativeType.OBJECT, "self", true)));
+        function.add(new LReturn(new LNativeValue(current, LNativeType.OBJECT, true, "self")));
 
         return declaration;
     }
@@ -246,7 +246,7 @@ public class LCompiler extends LyricBaseVisitor<Object> {
             if (matcher.find()) {
                 boolean isPointer = matcher.group(1).equals("<-");
                 LNativeType type = LNativeType.lookup(matcher.group(2).trim()).get();
-                return new LNativeValue(current, type, matcher.group(3).trim(), isPointer);
+                return new LNativeValue(current, type, isPointer, matcher.group(3).trim());
             } else {
                 throw new RuntimeException("Could not parse native expression: " + ctx.getText());
             }
@@ -295,7 +295,8 @@ public class LCompiler extends LyricBaseVisitor<Object> {
             LExpression right = (LExpression) visitMultiplicativeExpression(ctx.multiplicativeExpression());
             LOperator operator = ctx.Plus() == null ? LOperator.SUBTRACT : LOperator.ADD;
 
-            return new LFunctionCall(new LConnector(left, operator.getFunction()), Collections.singletonList(right));
+            return new LArithmeticExpr(current, left, operator, right);
+            // new LFunctionCall(new LConnector(left, operator.getFunction()), Collections.singletonList(right));
         }
     }
 

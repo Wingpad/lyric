@@ -37,7 +37,7 @@ public class LFunction extends LScope implements LBlock {
         for (String name : arguments.keySet()) {
             LType actual = arguments.get(name);
             LNativeType type = actual instanceof LNativeType ? (LNativeType) actual : LNativeType.OBJECT;
-            LNativeValue value = new LNativeValue(null, type, "(" + type.getIdentifier() + ") argv[" + i + "]", true);
+            LNativeValue value = new LNativeValue(null, type, true, "(" + type.getIdentifier() + ") argv[" + i + "]");
             LDeclaration declaration = new LDeclaration(actual, name, value);
 
             add(declaration);

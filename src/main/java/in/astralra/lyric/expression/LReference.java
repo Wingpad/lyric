@@ -3,6 +3,7 @@ package in.astralra.lyric.expression;
 import in.astralra.lyric.core.*;
 import in.astralra.lyric.type.LNativeType;
 import in.astralra.lyric.type.LTypeReference;
+import in.astralra.lyric.util.LUnboxer;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,7 +17,7 @@ public class LReference extends LExpression implements LAssignable {
     private String target;
     private LDeclaration resolved;
 
-    private static LNativeValue SELF = new LNativeValue(null, LNativeType.OBJECT, "self", true);
+    private static LNativeValue SELF = new LNativeValue(null, LNativeType.OBJECT, true, "self");
 
     public LReference(LObject scope, String target) {
         this.scope = scope;
@@ -112,22 +113,7 @@ public class LReference extends LExpression implements LAssignable {
         if (scope.isMember(resolved)) {
             return new LConnector(SELF, target).assign(value);
         } else if (getType().isNativeType()) {
-            if (value.getType().isNativeType()) {
-                if (getType() == LNativeType.VOID) {
-                    return target + " = (" + getType().getIdentifier() + ")" + value;
-                } else if (getType() == value.getType()) {
-                    return target + " = " + value;
-                } else {
-                    throw new RuntimeException("Cannot assign " + value + " to " + target + "!");
-                }
-            } else {
-                List<LDeclaration> found = value.findByName("value");
-                if (found.isEmpty() || found.get(0).getType() != getType()) {
-                    throw new RuntimeException("Cannot assign " + value + " to " + target + "!");
-                } else {
-                    return target + " = (" + getType().getIdentifier() + ")" + new LConnector(value, "value");
-                }
-            }
+            return target + " = (" + getType().getIdentifier() + ")"  + LUnboxer.unbox(value, (LNativeType) getType());
         } else {
             return target + " = " + value;
         }

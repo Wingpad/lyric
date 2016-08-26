@@ -3,35 +3,41 @@ package in.astralra.lyric.expression;
 import in.astralra.lyric.core.*;
 import in.astralra.lyric.type.LNativeType;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by jszaday on 8/10/2016.
  */
 public class LNativeValue extends LExpression implements LAssignable, LElement {
     private LNativeType type;
-    private String expression;
-    private String original;
+    private Object[] expressions;
+    private Object[] originals;
     private List<LElement> backElements;
 
-    public LNativeValue(LScope scope, LNativeType type, String expression, boolean isPointer) {
-        this.expression = expression;
+    public LNativeValue(LScope scope, LNativeType type, boolean isPointer, Object... lazyExpressions) {
+        this.expressions = lazyExpressions;
         this.type = type;
 
-        if (isPointer) {
-            this.backElements = Collections.emptyList();
-        } else {
+
+        this.backElements = Arrays.stream(lazyExpressions)
+                .filter(o -> o instanceof LElement)
+                .map(LElement.class::cast)
+                .map(LElement::getBackElements)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+
+        if (!isPointer) {
             String name = scope.issueValue();
             String plainType = type.getIdentifier().replaceAll("\\*", "");
-            LDeclaration declaration = new LDeclaration(type, name, new LNativeValue(null, type, "(" + type.getIdentifier() + ") malloc(sizeof(" + plainType + "))", true));
+            LDeclaration declaration = new LDeclaration(type, name, new LNativeValue(null, type, true, "(" + type.getIdentifier() + ") malloc(sizeof(" + plainType + "))"));
             scope.declare(declaration);
 
-            this.original = expression;
-            this.backElements = Arrays.asList(declaration, new LAssignment(declaration, LOperator.NONE, this));
-            this.expression = name;
+            this.originals = lazyExpressions;
+            this.backElements = new ArrayList<>(backElements);
+            this.backElements.addAll(Arrays.asList(declaration, new LAssignment(declaration, LOperator.NONE, this)));
+            this.expressions = new Object[] { name };
         }
     }
 
@@ -41,22 +47,30 @@ public class LNativeValue extends LExpression implements LAssignable, LElement {
     }
 
     public String getOriginal() {
-        return original;
+        return originals == null ? null : Arrays.stream(originals)
+                .map(String::valueOf)
+                .collect(Collectors.joining());
+    }
+
+    public String getExpression() {
+        return expressions == null ? null : Arrays.stream(expressions)
+                .map(String::valueOf)
+                .collect(Collectors.joining());
     }
 
     @Override
     LObject getObject() {
-        throw new RuntimeException(expression + " does not have object properties.");
+        throw new RuntimeException("A " + type + " does not have object properties.");
     }
 
     @Override
     public String assign(LExpression value) {
-        return expression + " = (" + type.getIdentifier() + ") " + value;
+        return getExpression() + " = (" + type.getIdentifier() + ") " + value;
     }
 
     @Override
     public String toString() {
-        return expression;
+        return getExpression();
     }
 
     @Override

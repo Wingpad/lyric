@@ -2,6 +2,7 @@ package in.astralra.lyric.expression;
 
 import in.astralra.lyric.core.*;
 import in.astralra.lyric.type.LNativeType;
+import in.astralra.lyric.util.LUnboxer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -116,21 +117,9 @@ public class LConnector extends LExpression implements LAssignable {
                 // Then make the call
                 return new LFunctionCall(identifier.getScope(), "set", mutable).toString();
             case NATIVE_ARRAY:
-                if (identifier.getType() != LNativeType.OBJECT && !value.getType().isNativeType()) {
-                    List<LDeclaration> found = value.findByName("value");
-                    if (found.isEmpty() || !found.get(0).getType().isNativeType()) {
-                        throw new RuntimeException("Assigning " + value + " to " + identifier + " is invalid!");
-                    } else {
-                        value = new LConnector(value, "value");
-                    }
-                }
-
-                if (identifier.getType() != value.getType()) {
-                    throw new RuntimeException("Assigning " + value + " to " + identifier + " is invalid!");
-                }
-
+                // TODO somehow handle back elements for assign!!
                 return identifier + "[*(" +(expressions.get(0).getType().getIdentifier())+ ")"+ expressions.get(0) +
-                    "] = *(" +identifier.getType().getIdentifier() + ")" + value;
+                    "] = *(" +identifier.getType().getIdentifier() + ")" + LUnboxer.unbox(value, (LNativeType) identifier.getType());
             default:
                 throw new RuntimeException("Cannot set the value of " + identifier);
         }

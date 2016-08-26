@@ -78,8 +78,6 @@ function main() {
     test[i] = test[j] + k
     var nTest = N<-I(malloc(2*sizeof(uint32_t)))
     var nI: N->I
-    var nJ: N->I
     nI = i
-    nJ = nI
-    nTest[nI] = j;
+    nTest[nI] = nI + j;
 }
