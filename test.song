@@ -8,14 +8,7 @@ class Int {
     }
 
     public function plus(other: Int) {
-        # int32_t* ours = (int32_t*) LObject_get(self, "value");
-        var ours = value
-        # int32_t* theirs = (int32_t*) LObject_get(other, "value");
-        var theirs = other.value
-        # int32_t __val001 = (int32_t*) malloc(sizeof(int32_t));
-        # *__val001 = *ours + *theirs;
-        # return LFunction_invoke(LObject_lift(LInt, NULL, "I"), __val001, NULL);
-        return Int(N->I(*ours + *theirs))
+        return Int(other.value + value)
     }
 
     public function toString() {

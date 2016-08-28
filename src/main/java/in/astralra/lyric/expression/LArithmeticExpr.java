@@ -28,7 +28,11 @@ public class LArithmeticExpr extends LExpression {
     private LExpression resolve() {
         if (resolved == null) {
             if (left.getType().isNativeType()) {
-                resolved = new LNativeValue(scope, (LNativeType) left.getType(), false, left, operator.getOperator(), LUnboxer.unbox(right, (LNativeType) left.getType()));
+                resolved = new LNativeValue(scope, (LNativeType) left.getType(), false,
+                        "*(" + left.getType().getIdentifier() + ")", left,
+                        operator.getOperator(),
+                        "*(" + left.getType().getIdentifier() + ")",
+                        LUnboxer.unbox(right, (LNativeType) left.getType()));
             } else {
                 resolved = new LFunctionCall(new LConnector(left, operator.getFunction()), Collections.singletonList(right));
             }

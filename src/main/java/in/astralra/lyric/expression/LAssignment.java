@@ -35,6 +35,10 @@ public class LAssignment implements LElement {
 
     @Override
     public List<LElement> getBackElements() {
-        return Collections.emptyList();
+        if (value == null || target instanceof LDeclaration) {
+            return Collections.emptyList();
+        } else {
+            return value.getBackElements();
+        }
     }
 }
